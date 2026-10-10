@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 — Emerging Technologies — Computer Architecture &amp; OS Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#8ab4f8; --red:#f28b82; --yellow:#fdd663; --green:#81c995; --purple:#c58af9;
+  --ink:#e8eaed; --sub:#9aa0a6; --paper:#232427; --bg:#131417; --line:#3c4043;
+  --card-shadow: 0 1px 2px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{ margin:0; font-family:'Roboto', Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.65; overflow-x:hidden; }
+h1,h2,h3,.slide-title{ font-family:'Google Sans','Roboto',Arial,sans-serif; }
+a{ color:inherit; }
+.si{ font-family:'Noto Sans Sinhala','Roboto',sans-serif; }
+
+.mobile-bar{ display:none; position:sticky; top:0; z-index:40; align-items:center; justify-content:space-between; background:var(--paper); border-bottom:1px solid var(--line); padding:12px 16px; }
+.mobile-bar .m-title{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.menu-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--paper); flex:none; cursor:pointer; padding:0; }
+.menu-btn span, .menu-btn span::before, .menu-btn span::after{ content:""; display:block; width:18px; height:2px; background:var(--ink); position:relative; transition:transform .2s ease, opacity .2s ease; }
+.menu-btn span::before{ position:absolute; top:-6px; } .menu-btn span::after{ position:absolute; top:6px; }
+.menu-btn[aria-expanded="true"] span{ background:transparent; }
+.menu-btn[aria-expanded="true"] span::before{ top:0; transform:rotate(45deg); background:var(--ink); }
+.menu-btn[aria-expanded="true"] span::after{ top:0; transform:rotate(-45deg); background:var(--ink); }
+.toc-backdrop{ display:none; position:fixed; inset:0; background:rgba(32,33,36,.45); z-index:45; }
+.toc-backdrop.show{ display:block; }
+.drawer-close{ display:none; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--paper); align-items:center; justify-content:center; cursor:pointer; font-size:16px; line-height:1; color:var(--sub); flex:none; }
+nav.toc.drawer-open .drawer-close{ display:flex; }
+@keyframes slideIn{ from{ transform:translateX(-100%); opacity:.4; } to{ transform:translateX(0); opacity:1; } }
+
+.hero{ background:radial-gradient(circle 140px at calc(100% - 80px) 80px, rgba(255,255,255,.08) 99%, transparent 100%), radial-gradient(circle 110px at calc(10% + 110px) calc(100% + 10px), rgba(255,255,255,.07) 99%, transparent 100%), linear-gradient(120deg,#1a73e8 0%, #7B61FF 45%, #EA4335 100%); color:#fff; padding:56px 24px 40px; position:relative; }
+.hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:3;}
+.eyebrow{ display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; background:rgba(255,255,255,.18); padding:6px 12px; border-radius:20px; margin-bottom:18px; font-weight:500; }
+.hero h1{font-size:32px; margin:0 0 12px; font-weight:700; line-height:1.25;}
+.hero p.lead{font-size:16px; max-width:700px; opacity:.95; margin:0;}
+.hero-meta{display:flex; gap:20px; flex-wrap:wrap; font-size:13px; opacity:.9; margin-top:16px;}
+.hero-meta span{display:flex; align-items:center; gap:7px;}
+.dot{width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block; flex:none;}
+
+.hero-search-row{ margin-top:22px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+
+.site-search{ position:relative; z-index:2; flex:1 1 300px; }
+.site-search input{
+  width:100%; padding:13px 16px 13px 44px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.32); background:rgba(255,255,255,.14);
+  color:#fff; font-size:14.5px; backdrop-filter:blur(6px); box-sizing:border-box;
+}
+.site-search input::placeholder{ color:rgba(255,255,255,.78); }
+.site-search input:focus{ outline:none; background:rgba(255,255,255,.22); border-color:#fff; }
+.site-search .s-icon{
+  position:absolute; left:15px; top:22px; transform:translateY(-50%);
+  font-size:14px; opacity:.85; pointer-events:none;
+}
+.site-search .s-clear{
+  position:absolute; right:8px; top:22px; transform:translateY(-50%);
+  width:26px; height:26px; border-radius:8px; border:none; background:rgba(255,255,255,.16);
+  color:#fff; font-size:13px; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.site-search.has-query .s-clear{ display:flex; }
+.site-search .s-dropdown{
+  display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.6); max-height:320px; overflow:auto; padding:6px; z-index:30;
+}
+.site-search .s-dropdown.show{ display:block; }
+.site-search .s-item{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px;
+  color:var(--ink); text-decoration:none; font-size:13.5px; cursor:pointer;
+}
+.site-search .s-item:hover, .site-search .s-item.hl{ background:#2c2d30; }
+.site-search .s-item .s-num{
+  font-family:'Roboto Mono',monospace; font-size:11px; color:var(--sub);
+  background:#1a1b1e; border-radius:6px; padding:2px 6px; flex:none; min-width:24px; text-align:center;
+}
+.site-search .s-empty{ padding:14px 10px; font-size:13px; color:var(--sub); text-align:center; }
+
+#siteSearch{ z-index:5; } /* topic dropdown must overlap the 'Find on this page' box that follows it (matters on mobile where they stack) */
+.hero-find-col{ flex:1 1 300px; }
+.hero-find-col .site-search.find-page-search{ max-width:none; }
+.find-page-nav{
+  display:none; align-items:center; justify-content:space-between; gap:8px;
+  margin-top:8px; font-size:12px; color:rgba(255,255,255,.85);
+}
+.find-page-nav.show{ display:flex; }
+.find-page-nav .snav-btns{ display:flex; gap:6px; }
+.find-page-nav button{
+  width:26px; height:26px; border-radius:8px; border:1px solid rgba(255,255,255,.32);
+  background:rgba(255,255,255,.14); color:#fff; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.find-page-nav button:hover{ background:rgba(255,255,255,.24); }
+.find-page-nav button:disabled{ opacity:.4; cursor:default; }
+
+.path-nav{ max-width:1100px; margin:26px auto 0; position:relative; z-index:1; display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:stretch; }
+.path-btn{ display:flex; align-items:center; gap:10px; text-decoration:none; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:14px; padding:10px 16px; backdrop-filter:blur(6px); transition:background .15s ease, transform .15s ease; }
+.path-btn:hover{ background:rgba(255,255,255,.24); transform:translateY(-1px); }
+.path-btn .p-arrow{ font-size:16px; flex:none; }
+.path-btn .p-text{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.path-btn .p-kicker{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.8; }
+.path-btn .p-title{ font-size:13px; font-weight:600; font-family:'Google Sans',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.path-btn.next{ justify-content:flex-end; text-align:right; }
+.path-btn.next .p-text{ align-items:flex-end; }
+.path-btn.index{ justify-content:center; text-align:center; background:rgba(0,0,0,.22); border-color:rgba(255,255,255,.28); padding:10px 18px; }
+.path-btn.index .p-text{ align-items:center; }
+.path-spacer{visibility:hidden;}
+
+.bottom-nav{ max-width:1180px; margin:0 auto 40px; padding:0 24px; display:grid; grid-template-columns:1fr auto 1fr; gap:12px; }
+.bottom-nav .path-btn{ color:var(--ink); background:var(--paper); border:1px solid var(--line); }
+.bottom-nav .path-btn:hover{ background:#2c2d30; }
+.bottom-nav .path-btn.index{ background:#1a2a45; border-color:#2a3a55; }
+
+.wrap-idx{ max-width:1100px; margin:-56px auto 60px; padding:0 24px; }
+
+.layout{ max-width:1180px; margin:-8px auto 60px; padding:0 24px; display:grid; grid-template-columns:250px 1fr; gap:32px; align-items:start; }
+nav.toc{ background:var(--paper); border-radius:16px; box-shadow:var(--card-shadow); padding:18px 10px; position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; }
+nav.toc .toc-head{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); padding:6px 14px 10px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+nav.toc a{ display:block; padding:9px 14px; border-radius:10px; color:var(--ink); text-decoration:none; font-size:13.5px; border-left:3px solid transparent; }
+nav.toc a:hover{background:#2c2d30;}
+nav.toc a.active{background:#2a3a55; color:#a8c7fa; border-left-color:var(--blue); font-weight:500;}
+main{min-width:0;}
+
+/* ===== In-page "find" search (lives inside nav.toc — shared by desktop sidebar + mobile drawer) ===== */
+.toc-search{ padding:4px 10px 12px; }
+.toc-search-box{ position:relative; }
+.toc-search input{
+  width:100%; padding:9px 34px 9px 32px; border-radius:10px; border:1px solid var(--line);
+  background:#1a1b1e; color:var(--ink); font-size:13px; box-sizing:border-box;
+}
+.toc-search input::placeholder{ color:var(--sub); }
+.toc-search input:focus{ outline:none; border-color:#5f6368; }
+.toc-search .s-icon{ position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; opacity:.7; pointer-events:none; }
+.toc-search .s-clear{
+  position:absolute; right:5px; top:50%; transform:translateY(-50%);
+  width:22px; height:22px; border-radius:6px; border:none; background:#2c2d30; color:var(--sub);
+  font-size:11px; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.toc-search.has-query .s-clear{ display:flex; }
+.toc-search-nav{
+  display:none; align-items:center; justify-content:space-between; gap:8px;
+  margin-top:8px; font-size:11.5px; color:var(--sub);
+}
+.toc-search-nav.show{ display:flex; }
+.toc-search-nav .snav-btns{ display:flex; gap:4px; }
+.toc-search-nav button{
+  width:24px; height:24px; border-radius:6px; border:1px solid var(--line); background:#1a1b1e;
+  color:var(--ink); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.toc-search-nav button:hover{ background:#2c2d30; }
+.toc-search-nav button:disabled{ opacity:.4; cursor:default; }
+
+mark.search-hit{ background:#fdd663; color:#131417; padding:0 2px; border-radius:3px; }
+mark.search-hit.active{ background:#ff9d45; box-shadow:0 0 0 2px rgba(255,157,69,.35); }
+
+.section{ background:var(--paper); border-radius:18px; box-shadow:var(--card-shadow); padding:30px 32px; margin-bottom:24px; scroll-margin-top:20px; position: sticky;}
+.section .kicker{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.kicker-left{ display:flex; align-items:center; gap:10px; }
+.num-badge{ width:30px;height:30px;border-radius:9px; display:flex;align-items:center;justify-content:center; color:#fff; font-weight:700; font-size:14px; font-family:'Google Sans',sans-serif; flex:none; line-height:1; }
+.section h2{font-size:21px; margin:0; font-weight:700; line-height:1.3;}
+.section p{color:#c7cbd1; font-size:15px; margin:0 0 14px;}
+.section p:last-child{margin-bottom:0;}
+.lede{font-size:15.5px; color:#c7cbd1;}
+.subhead{ font-family:'Google Sans',sans-serif; font-size:14.5px; font-weight:700; color:#e8eaed; margin:22px 0 10px; display:flex; align-items:center; gap:9px; }
+.subhead:first-of-type{margin-top:4px;}
+.subhead .sub-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+.phrase-list{ list-style:none; margin:0 0 4px; padding:0; }
+.phrase-list li{ padding:11px 0; border-bottom:1px solid var(--line); font-size:15px; color:#dfe1e5; }
+.phrase-list li:last-child{ border-bottom:none; }
+.phrase-list .en{ font-weight:500; }
+.phrase-list .si-inline{ display:block; color:#9aa0a6; font-size:13px; margin-top:3px; }
+
+.dialogue{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:16px 0; }
+.dialogue .dlg-title{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:13px; color:var(--yellow); text-transform:uppercase; letter-spacing:.06em; margin-bottom:14px; }
+.dline{ display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+.dline:last-child{margin-bottom:0;}
+.dline .who{ flex:none; width:78px; font-family:'Google Sans',sans-serif; font-weight:700; font-size:12.5px; padding:4px 0; border-radius:8px; text-align:center; color:#fff; height:fit-content; }
+.dline.a .who{ background:#1a73e8; }
+.dline.b .who{ background:#EA4335; }
+.dline.c .who{ background:#34A853; }
+.dline.d .who{ background:#F09300; }
+.dline.e .who{ background:#7B61FF; }
+.dline .msg{ background:#232427; border:1px solid var(--line); border-radius:10px; padding:10px 14px; font-size:14.5px; color:#e8eaed; flex:1; }
+.dline .msg .si-line{ display:block; color:#9aa0a6; font-size:12.5px; margin-top:5px; }
+
+table.vtable{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.vtable th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.vtable td{ padding:11px 12px; border-bottom:1px solid var(--line); color:#dfe1e5; vertical-align:top; }
+table.vtable tr:last-child td{ border-bottom:none; }
+table.vtable td.term{ font-weight:600; color:#fff; white-space:nowrap; }
+.table-wrap{ overflow-x:auto; margin:8px 0 4px; border:1px solid var(--line); border-radius:12px; }
+table.vtable{min-width:520px;}
+
+.callout{ background:#22344d; border-left:4px solid var(--blue); border-radius:10px; padding:14px 18px; font-size:14px; color:#a8c7fa; margin:16px 0; }
+.callout.warn{ background:#3a2530; border-left-color:var(--red); color:#f3b8c2; }
+.callout.tip{ background:#22344d; border-left-color:var(--green); color:#bfe9cd; background:#1c2b22; border-left-color:var(--green); }
+.callout b{color:#fff;}
+
+.role-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0 4px; }
+.role-card{ border-radius:14px; padding:16px 15px; color:#fff; }
+.role-card .r-name{font-family:'Google Sans',sans-serif; font-weight:700; font-size:14px;}
+.role-card .r-focus{font-size:12px; opacity:.92; margin-top:6px; line-height:1.4;}
+.r1{background:#4285F4;} .r2{background:#34A853;} .r3{background:#F09300;} .r4{background:#7B61FF;}
+
+.slide{ background:#1a1b1e; border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin:14px 0; position:relative; }
+.slide::before{ content:"SLIDE"; position:absolute; top:10px; right:14px; font-size:9px; letter-spacing:.12em; color:#5f6368; font-weight:700; }
+.slide .slide-title{ color:var(--blue); font-size:16.5px; font-weight:700; margin:0 0 10px; }
+.slide ul{margin:0; padding-left:20px;}
+.slide li{margin-bottom:7px; font-size:14px; color:#c7cbd1;}
+.slide li::marker{color:var(--blue);}
+.slide.accent-blue .slide-title{color:var(--blue);}
+.slide.accent-red .slide-title{color:var(--red);}
+.slide.accent-yellow .slide-title{color:var(--yellow);}
+.slide.accent-green .slide-title{color:var(--green);}
+.slide.accent-purple .slide-title{color:var(--purple);}
+.slide-row{display:grid; gap:16px;}
+.slide-row.cols-2{grid-template-columns:1fr 1fr;}
+
+.figure{ margin:18px 0; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:#000; }
+.figure img{ display:block; width:100%; }
+.figure figcaption{ padding:10px 16px; font-size:12.5px; color:var(--sub); background:#1a1b1e; border-top:1px solid var(--line); }
+.figure-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+.figure-row .figure{ margin:0; }
+@media (max-width:700px){ .figure-row{grid-template-columns:1fr;} .slide-row.cols-2{grid-template-columns:1fr;} }
+
+.purpose-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:16px 0 4px; }
+.purpose-card{ border-radius:14px; padding:14px 13px; color:#fff; min-height:78px; display:flex; align-items:flex-end; box-shadow:0 2px 6px rgba(0,0,0,.12); font-family:'Google Sans',sans-serif; font-weight:700; font-size:13px; }
+.p1{background:#4285F4;} .p2{background:#34A853;} .p3{background:#F09300;} .p4{background:#7B61FF;} .p5{background:#EA4335;}
+@media (max-width:700px){ .purpose-grid{grid-template-columns:repeat(2,1fr);} }
+
+.exam-list{ list-style:none; margin:0; padding:0; }
+.exam-list li{ display:flex; gap:12px; align-items:flex-start; padding:12px 4px; border-bottom:1px solid var(--line); font-size:14.5px; color:#dfe1e5; }
+.exam-list li:last-child{ border-bottom:none; }
+.exam-list .chk{ flex:none; width:20px; height:20px; border-radius:6px; border:2px solid var(--yellow); margin-top:2px; }
+.exam-list b{ color:#fff; }
+
+/* ===== MCQ Practice Quiz ===== */
+.mcq-quiz-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:#1a1b1e; border:1px solid var(--line); border-radius:12px; padding:12px 18px; margin:16px 0 20px; flex-wrap:wrap; }
+.mcq-quiz-header #mcqScore{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:15px; color:#fff; }
+.mcq-reset-btn{ background:#2c2d30; border:1px solid var(--line); color:var(--ink); font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:9px; cursor:pointer; }
+.mcq-reset-btn:hover{ background:#3a3b3e; }
+.mcq-card{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:16px; }
+.mcq-card:last-child{ margin-bottom:0; }
+.mcq-q{ font-family:'Google Sans',sans-serif; font-size:15px; font-weight:600; color:#fff; margin:0 0 14px; line-height:1.5; }
+.mcq-q .mcq-num{ color:var(--purple); margin-right:6px; }
+.mcq-options{ display:flex; flex-direction:column; gap:9px; }
+.mcq-opt{ display:flex; align-items:center; gap:10px; text-align:left; background:#202124; border:1px solid var(--line); color:#dfe1e5; font-size:13.5px; padding:11px 14px; border-radius:10px; cursor:pointer; transition:background .15s ease, border-color .15s ease; }
+.mcq-opt:hover:not(.locked){ background:#2c2d30; border-color:#5f6368; }
+.mcq-opt .mcq-letter{ flex:none; width:22px; height:22px; border-radius:50%; background:#2c2d30; color:var(--sub); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.mcq-opt.correct{ background:#16301f; border-color:var(--green); color:#c8f5d6; }
+.mcq-opt.correct .mcq-letter{ background:var(--green); color:#0d1f14; }
+.mcq-opt.wrong{ background:#33191c; border-color:var(--red); color:#f7c6c9; }
+.mcq-opt.wrong .mcq-letter{ background:var(--red); color:#fff; }
+.mcq-opt.locked{ cursor:default; }
+.mcq-note{ margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); font-size:12.5px; color:var(--sub); display:none; }
+.mcq-note.show{ display:block; }
+.mcq-note b{ color:#a8c7fa; }
+
+table.gtable{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.gtable th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.gtable td{ padding:11px 12px; border-bottom:1px solid var(--line); color:#dfe1e5; vertical-align:top; }
+table.gtable tr:last-child td{ border-bottom:none; }
+table.gtable td.acr{ font-family:'Roboto Mono',monospace; color:var(--blue); font-weight:700; white-space:nowrap; }
+
+table.ctable{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:520px; }
+table.ctable th{ background:#1a1b1e; text-align:left; font-family:'Google Sans',sans-serif; font-size:12px; color:#a8c7fa; padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap; }
+table.ctable td{ padding:12px 14px; border-bottom:1px solid var(--line); color:#c7cbd1; }
+table.ctable tr:last-child td{ border-bottom:none; }
+table.ctable td.row-head{ font-weight:700; color:#fff; white-space:nowrap; }
+table.ctable tr:hover td{ background:#1e1f22; }
+
+nav.toc .toc-divider{ margin:10px 10px 6px; border-top:1px solid var(--line); padding-top:10px; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:500; }
+
+/* ===== Collapse / expand accordion (beyond-the-lesson sections) ===== */
+.section.collapsible .kicker{ cursor:pointer; user-select:none; }
+.collapse-toggle{
+  display:flex; align-items:center; justify-content:center; flex:none;
+  width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+  background:#1a1b1e; color:var(--sub); cursor:pointer; padding:0;
+}
+.collapse-toggle:hover{ background:#2c2d30; color:var(--ink); }
+.collapse-toggle .chevron{ display:inline-block; font-size:13px; transition:transform .25s ease; }
+.collapse-toggle[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+.collapse-body{ max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .3s ease; }
+.collapse-body.open{ opacity:1; }
+
+/* ===== Sinhala Vocabulary Glossary ===== */
+.vocab-grid{ display:flex; flex-direction:column; gap:22px; margin-top:6px; }
+.vocab-card{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.vocab-header{ display:flex; align-items:center; gap:14px; padding:18px 22px 14px; border-bottom:1px solid var(--line); background:#202124; }
+.vocab-word{ font-family:'Google Sans',sans-serif; font-size:21px; font-weight:700; color:#a8c7fa; }
+.vocab-pos{ font-size:12px; color:var(--sub); font-style:italic; background:#2c2d30; padding:3px 9px; border-radius:20px; margin-left:4px; align-self:center; }
+.vocab-body{ padding:16px 22px; }
+.vocab-meanings{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.vocab-en{ background:#1c2b3e; border-left:3px solid var(--blue); border-radius:8px; padding:12px 14px; }
+.vocab-si{ background:#1c2b22; border-left:3px solid var(--green); border-radius:8px; padding:12px 14px; }
+.vocab-lang-label{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; margin-bottom:6px; display:block; }
+.vocab-en .vocab-lang-label{ color:#5b9cf8; }
+.vocab-si .vocab-lang-label{ color:#7cc99a; }
+.vocab-en p{ color:#a8c7fa; font-size:13.5px; margin:0; line-height:1.55; }
+.vocab-si p{ color:#d3e9db; font-size:14.5px; margin:0; line-height:1.6; font-family:'Noto Sans Sinhala','Roboto',sans-serif; }
+.vocab-sentences-head{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.vocab-sentences-head::after{ content:''; flex:1; height:1px; background:var(--line); }
+.vocab-sentences{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+.vocab-sentences li{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:#c7cbd1; line-height:1.55; }
+.vocab-tag{ flex:none; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:12px; margin-top:2px; white-space:nowrap; }
+.tag-daily{ background:#2a2b2e; color:#9aa0a6; }
+.tag-cyber{ background:#3a2530; color:#f3b8c2; }
+.tag-net{ background:#1c2b3e; color:#a8c7fa; }
+.tag-hw{ background:#2b2510; color:#fdd663; }
+.tag-sw{ background:#1c2b22; color:#81c995; }
+.vocab-hl{ color:#fff; font-weight:600; }
+@media (max-width:700px){ .vocab-meanings{grid-template-columns:1fr;} }
+
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 4px;}
+.chip{ background:#2c2d30; border:1px solid var(--line); color:#dfe1e5; font-size:12.5px; padding:6px 12px; border-radius:16px; }
+
+.grammar-point{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; background:#1a1b1e; }
+.grammar-point:last-child{margin-bottom:0;}
+.grammar-point .g-name{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:14.5px; color:var(--blue); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.grammar-point .g-name .g-tag{ font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:#22344d; color:#a8c7fa; padding:3px 8px; border-radius:8px; font-weight:600; }
+.grammar-point p{ font-size:14px; color:#c7cbd1; margin:0 0 8px; }
+.grammar-point ul{ margin:0; padding-left:18px; }
+.grammar-point li{ font-size:13.5px; color:#dfe1e5; margin-bottom:5px; }
+.grammar-point li:last-child{margin-bottom:0;}
+.grammar-point li .ex-en{ color:#e8eaed; }
+.grammar-point li .ex-si{ display:block; color:#9aa0a6; font-size:12px; margin-top:2px; }
+
+table.mistake-table{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.mistake-table th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.mistake-table td{ padding:12px; border-bottom:1px solid var(--line); vertical-align:top; font-size:13.5px; }
+table.mistake-table tr:last-child td{ border-bottom:none; }
+table.mistake-table td.wrong{ color:var(--red); }
+table.mistake-table td.wrong::before{ content:"\2717  "; }
+table.mistake-table td.right{ color:var(--green); }
+table.mistake-table td.right::before{ content:"\2713  "; }
+table.mistake-table td.note{ color:#9aa0a6; font-size:12.5px; }
+.mistake-table-wrap{ overflow-x:auto; margin:8px 0 4px; border:1px solid var(--line); border-radius:12px; }
+table.mistake-table{min-width:560px;}
+
+footer{ text-align:center; color:var(--sub); font-size:12.5px; padding:20px 0 50px; }
+.back-top{ display:inline-block; margin-top:10px; font-size:12px; color:var(--blue); text-decoration:none; }
+
+@media (max-width:900px){
+  .hero{padding:40px 20px 30px;} .hero h1{font-size:24px;} .hero p.lead{font-size:14.5px;}
+  .layout{grid-template-columns:1fr; margin-top:20px;}
+  .mobile-bar{display:flex;}
+  .hero-search-row{ display:block; }
+  .hero-find-col{ margin-top:10px; }
+  nav.toc{ display:none; }
+  nav.toc.drawer-open{ display:block; position:fixed; top:0; left:0; bottom:0; z-index:50; width:82%; max-width:320px; max-height:none; border-radius:0; box-shadow:2px 0 24px rgba(0,0,0,.18); padding:18px 8px 24px; animation:slideIn .22s ease; overflow:auto; }
+  nav.toc.drawer-open .toc-head{padding:8px 16px 14px;}
+  nav.toc a{padding:12px 16px; font-size:14.5px;}
+  .section{padding:22px 18px;}
+  .role-grid{grid-template-columns:1fr 1fr;}
+  .path-nav{grid-template-columns:1fr; }
+  .path-btn.prev, .path-btn.next{ justify-content:center; text-align:center; }
+  .path-btn.prev .p-text, .path-btn.next .p-text{ align-items:center; }
+  .bottom-nav{grid-template-columns:1fr;}
+}
+@media (max-width:400px){ nav.toc.drawer-open{width:88%;} }
+@media (max-width:560px){
+  .dline{flex-direction:column;}
+  .dline .who{width:auto; align-self:flex-start; padding:3px 10px;}
+  table.vtable{min-width:420px;}
+}
+
+/* ===== Sinhala translation toggles ===== */
+.si-toggle{ display:inline-flex; align-items:center; gap:7px; background:#2a2b2e; border:1px solid var(--line); color:#a8c7fa; font-family:'Roboto',sans-serif; font-weight:500; font-size:12.5px; padding:7px 13px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:background .15s ease, border-color .15s ease; }
+.si-divider{ display:flex; align-items:center; gap:14px; margin:26px 0 0; }
+.si-divider::before, .si-divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+.si-toggle:hover{ background:#33343a; border-color:#5f6368; }
+.si-toggle .flag{ font-size:13px; }
+.si-toggle .arrow{ display:inline-block; transition:transform .2s ease; font-size:10px; }
+.si-toggle[aria-expanded="true"] .arrow{ transform:rotate(180deg); }
+.si-panel{ display:none; background:#1c2b22; border:1px solid #2f5b41; border-left:4px solid var(--green); border-radius:10px; padding:16px 20px; margin-top:14px; font-size:14.5px; color:#d3e9db; }
+.si-panel.open{ display:block; animation:fadeSlide .18s ease; }
+.si-panel p{ color:#d3e9db; font-size:14.5px; margin:0 0 10px; }
+.si-panel p:last-child{ margin-bottom:0; }
+.si-panel .si-label{ font-family:'Roboto',sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#7cc99a; font-weight:700; margin-bottom:8px; display:block; }
+@keyframes fadeSlide{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
+
+
+/* ===== Image lightbox (click to enlarge) ===== */
+.figure img{ cursor:zoom-in; }
+.lb-overlay{ position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; flex-direction:column; gap:12px; background:rgba(10,11,13,.92); padding:24px; cursor:zoom-out; }
+.lb-overlay.open{ display:flex; animation:lbFade .18s ease; }
+.lb-overlay img{ max-width:96vw; max-height:84vh; object-fit:contain; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,.6); background:#fff; animation:lbZoom .2s ease; }
+.lb-caption{ color:#c7cbd1; font-size:13.5px; text-align:center; max-width:90vw; }
+.lb-close{ position:fixed; top:14px; right:16px; width:40px; height:40px; border-radius:50%; border:1px solid #5f6368; background:#2a2b2e; color:#e8eaed; font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.lb-close:hover{ background:#3c4043; }
+.lb-nav{ position:fixed; top:50%; transform:translateY(-50%); width:48px; height:48px; border-radius:50%; border:1px solid #5f6368; background:rgba(42,43,46,.92); color:#e8eaed; font-size:26px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; padding:0 0 3px; }
+.lb-nav:hover{ background:#3c4043; }
+.lb-prev{ left:14px; } .lb-next{ right:14px; }
+.lb-count{ color:#9aa0a6; font-size:12.5px; letter-spacing:.04em; }
+@media (max-width:700px){
+  .lb-overlay{ padding:16px 12px 92px; }
+  .lb-overlay img{ max-height:68vh; }
+  .lb-nav{ top:auto; bottom:22px; transform:none; width:46px; height:46px; font-size:24px; }
+  .lb-prev{ left:calc(50% - 92px); right:auto; }
+  .lb-next{ right:calc(50% - 92px); left:auto; }
+  .lb-count{ position:fixed; bottom:34px; left:50%; transform:translateX(-50%); font-size:13px; }
+}
+@keyframes lbFade{ from{opacity:0;} to{opacity:1;} }
+@keyframes lbZoom{ from{transform:scale(.94);} to{transform:scale(1);} }
+
+/* ===== Back-to-top button (desktop + mobile) ===== */
+.to-top{ position:fixed; right:22px; bottom:22px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); z-index:35; display:flex; align-items:center; justify-content:center; width:48px; height:48px; padding:0; border-radius:50%; border:1px solid #5f6368; background:#000; color:#fff; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.6); opacity:0; visibility:hidden; transform:translateY(14px); transition:opacity .25s ease, transform .25s ease, visibility .25s, background .15s ease; -webkit-tap-highlight-color:transparent; }
+.to-top.show{ opacity:1; visibility:visible; transform:none; }
+.to-top:hover{ background:#2c2d30; }
+.to-top:active{ transform:scale(.96); }
+@media (max-width:900px){ .to-top{ right:14px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); } }
+
+/* ===== Keyboard focus (visible only for keyboard users) ===== */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+button:focus:not(:focus-visible), a:focus:not(:focus-visible){ outline:none; }
+.toc-search input:focus{ border-color:var(--blue); }
+
+/* ===== Mobile: sticky top bar must not cover headings after anchor jumps ===== */
+@media (max-width:900px){ .section, .group{ scroll-margin-top:76px; } }
+
+/* ===== Respect reduced-motion setting ===== */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="mobile-bar" id="mobileBar">
+  <span class="m-title">07. Emerging Technologies</span>
+  <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="toc" aria-label="Open section menu">
+    <span></span>
+  </button>
+</div>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Computer Architecture &amp; OS Design</span>
+    <h1>07. Emerging Technologies</h1>
+    <p class="lead">AI history, applications, ML/DL, IoT, and Quantum Computing — condensed from the "Emerging Technologies" lecture into revision notes, tables, and exam-style Q&amp;A.</p>
+    <div class="hero-meta"><span><span class="dot"></span>Emerging Technologies</span><span><span class="dot"></span>Lecturer: Nimeshanan Kulendra</span><span><span class="dot"></span>9 sections</span></div>
+
+    <div class="hero-search-row">
+      <div class="site-search" id="siteSearch">
+        <span class="s-icon">🔍</span>
+        <input type="text" id="topicJump" placeholder="Search topics… e.g. floating point, GPU, storage" autocomplete="off">
+        <button type="button" class="s-clear" id="jumpClear" aria-label="Clear search">✕</button>
+        <div class="s-dropdown" id="jumpDropdown"></div>
+      </div>
+
+      <div class="hero-find-col">
+        <div class="site-search find-page-search" id="heroFindWrap">
+          <span class="s-icon">📍</span>
+          <input type="text" id="heroFindInput" placeholder="Find on this page…" autocomplete="off">
+          <button type="button" class="s-clear" id="heroFindClear" aria-label="Clear search">✕</button>
+        </div>
+        <div class="find-page-nav" id="heroFindNav">
+          <span id="heroSearchCount">0 / 0</span>
+          <div class="snav-btns">
+            <button type="button" id="heroSearchPrev" aria-label="Previous match">↑</button>
+            <button type="button" id="heroSearchNext" aria-label="Next match">↓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="path-nav">
+    <a class="path-btn prev" href="06-display-technologies-gpu-architecture.html"><span class="p-arrow">←</span><span class="p-text"><span class="p-kicker">Previous</span><span class="p-title">06. Display Tech &amp; GPU</span></span></a>
+    <a class="path-btn index" href="comp40050-index.html"><span class="p-text"><span class="p-kicker">All Topics</span><span class="p-title">🏠 Main Index</span></span></a>
+    <span class="path-spacer"></span>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-head">On this page <button type="button" class="drawer-close" id="drawerClose" aria-label="Close menu">✕</button></div>
+    <div class="toc-search">
+      <div class="toc-search-box">
+        <span class="s-icon">🔍</span>
+        <input type="text" id="pageSearchInput" placeholder="Find on this page…" autocomplete="off">
+        <button type="button" class="s-clear" id="pageSearchClear" aria-label="Clear search">✕</button>
+      </div>
+      <div class="toc-search-nav" id="searchNav">
+        <span id="searchCount">0 / 0</span>
+        <div class="snav-btns">
+          <button type="button" id="searchPrev" aria-label="Previous match">↑</button>
+          <button type="button" id="searchNext" aria-label="Next match">↓</button>
+        </div>
+      </div>
+    </div>
+    <a href="#history">1. History of AI</a><a href="#ai-basics">2. AI, Applications &amp; Expert Systems</a><a href="#nlp-cv">3. NLP &amp; Computer Vision</a><a href="#robotics">4. Robotics</a><a href="#aimldl">5. AI vs ML vs DL</a><a href="#real-world">6. Real-World AI</a><a href="#iot">7. Internet of Things</a><a href="#quantum">8. Quantum Computing</a>
+    <div class="toc-divider">Beyond the lesson</div>
+    <a href="#exam">What to Remember for the Exam</a><a href="#glossary">Glossary — Acronyms &amp; Meanings</a><a href="#comparison">Comparison Tables</a><a href="#sinhala-vocab">🇱🇰 Sinhala Vocabulary</a><a href="#mcq-practice">📝 MCQ Practice Test (80 Qs)</a>
+  </nav>
+  <main>
+    <section class="section" id="history">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--blue)">1</div><h2>History of Artificial Intelligence</h2></div>
+      </div>
+      <p class="lede">AI's popularity has grown in waves since 1956, with two "winters" where progress and funding slowed down before picking back up.</p>
+      <div class="figure-row">
+        <div class="figure"><img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/01-title-slide.jpg" alt="Emerging Technologies title slide — COMP40050"></div>
+        <div class="figure"><img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/02-roadmap.jpg" alt="Road map to Emerging Technologies: AI, applications, AI vs ML vs DL, IoT, Quantum Computing"></div>
+      </div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/03-history-of-ai.jpg" alt="History of AI popularity graph from 1956 to 2023, showing two waves and two AI winters">
+        <figcaption>History of AI — popularity over time, from the 1956 Dartmouth Conference to the modern LLM era.</figcaption>
+      </div>
+      <div class="slide">
+        <div class="slide-title">Timeline — from Dartmouth to ChatGPT</div>
+        <ul>
+          <li><b>1956 — "AI" is coined</b> by John McCarthy at the Dartmouth Conference.</li>
+          <li><b>1st wave — Symbolic AI:</b> rule-based programming, used for mathematical computation and automated games (Rule-based Information Theory).</li>
+          <li><b>AI Winter 1:</b> progress slowed due to funding cuts.</li>
+          <li><b>Slight boom — Expert Systems:</b> knowledge-based systems helped with narrow tasks like medical diagnosis.</li>
+          <li><b>AI Winter 2:</b> progress fell again because expert systems were hard to maintain and scale.</li>
+          <li><b>2nd wave — Machine/Deep Learning:</b> a paradigm shift from rule-based AI to statistical methods (Machine Learning). Big data + powerful GPUs enabled Deep Learning — backpropagation, IBM Deep Blue, GBMs winning Kaggle, IBM Watson, AlexNet, Transformers, BERT/GPT, GANs/AlphaGo, diffusion models.</li>
+          <li><b>2022 onward — 3rd wave?</b> ChatGPT made the public large-scale users of AI, followed by GPT-3/4, Bard/Gemini, LLaMa, AlexaTM.</li>
+        </ul>
+      </div>
+      <div class="callout tip"><b>Exam tip:</b> Know the order — 1956 coined → 1st wave (rule-based) → Winter 1 → Expert Systems → Winter 2 → 2nd wave (ML/DL) → 2022+ mainstream adoption.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-history" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-history">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si">කෘත්‍රිම බුද්ධිය (AI) ජනප්‍රියත්වය 1956 සිට රැල්ලවල් ලෙස වර්ධනය වූ අතර, ප්‍රගතිය සහ අරමුදල් අඩු වූ <b>AI Winters</b> ලෙස හැඳින්වෙන කාල පරිච්ඡේද දෙකක් ද තිබුණි.</p>
+        <p class="si"><b>1956:</b> John McCarthy විසින් Dartmouth Conference එකේදී "AI" යන යෙදුම හඳුන්වා දුන්නේය. <b>පළමු රැල්ල (Symbolic AI):</b> නීති පදනම් කරගත් (rule-based) ක්‍රමලේඛනය ගණිතමය ගණනය කිරීම් සහ ස්වයංක්‍රීය ක්‍රීඩා සඳහා භාවිත විය. <b>AI Winter 1:</b> අරමුදල් කප්පාදුව නිසා ප්‍රගතිය මන්දගාමී විය.</p>
+        <p class="si"><b>Expert Systems:</b> වෛද්‍ය රෝග විනිශ්චය වැනි සීමිත කාර්යයන් සඳහා දැනුම පදනම් කරගත් පද්ධති උපකාර විය. <b>AI Winter 2:</b> Expert systems නඩත්තු කිරීමට සහ පුළුල් කිරීමට අපහසු වූ නිසා ප්‍රගතිය නැවතත් පහත වැටුණි. <b>දෙවන රැල්ල (Machine/Deep Learning):</b> නීති පදනම් කරගත් AI වෙනුවට සංඛ්‍යාන ක්‍රම (Machine Learning) භාවිත කිරීමට ප්‍රතිමානයේ වෙනසක් සිදු විය. Big data සහ ශක්තිමත් GPU නිසා Deep Learning හැකි විය.</p>
+        <p class="si"><b>2022 සිට:</b> ChatGPT මගින් සාමාන්‍ය මහජනතාව AI විශාල වශයෙන් භාවිත කිරීමට පටන් ගත් අතර, GPT-3/4, Gemini, LLaMa වැනි ආකෘති ඊට පසුව පැමිණියේය.</p>
+      </div>
+    </section><section class="section" id="ai-basics">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--green)">2</div><h2>Understanding AI, its applications &amp; Expert Systems</h2></div>
+      </div>
+      <p class="lede"><b>Artificial Intelligence</b> is the capability of machines to imitate intelligent human behavior. It involves learning, reasoning, problem-solving, and self-correction.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/04-understanding-ai.jpg" alt="Understanding AI mind map — AI branching into Machine Learning, Deep Learning, NLP, Computer Vision, Robotics">
+        <figcaption>AI is a broad field — Machine Learning, Deep Learning, NLP, Computer Vision, and Robotics all fall under it.</figcaption>
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--blue)"></span>5 major applications of AI</div>
+      <div class="purpose-grid">
+        <div class="purpose-card p1">Expert Systems</div>
+        <div class="purpose-card p2">Natural Language Processing</div>
+        <div class="purpose-card p3">Speech Recognition</div>
+        <div class="purpose-card p4">Computer Vision</div>
+        <div class="purpose-card p1" style="background:#EA4335;">Robotics</div>
+      </div>
+      <div class="figure" style="margin-top:22px;">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/05-applications-of-ai.jpg" alt="Applications of AI slide listing Expert Systems, NLP, Speech Recognition, Computer Vision, Robotics">
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--green)"></span>Expert systems</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/06-expert-systems.jpg" alt="Expert systems diagram — non-expert user query through user interface, inference engine, knowledge base, expert knowledge input">
+      </div>
+      <p>An expert system is a computer program designed to act as an expert in a particular domain. A non-expert user sends a <b>query</b> through a <b>user interface</b>; an <b>inference engine</b> reasons over a <b>knowledge base</b> (built from a real expert's knowledge) and returns <b>advice</b>.</p>
+      <div class="callout"><b>Key idea:</b> Expert systems preserve and replicate human expertise — especially useful where that expertise is scarce or expensive.</div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Domain</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+        <tr><td class="term">Medical</td><td>Analyze symptoms, suggest diagnoses</td><td>MYCIN, Watson for Oncology</td></tr>
+        <tr><td class="term">Financial</td><td>Evaluate market trends, recommend investments</td><td>Trading algorithms, robo-advisors</td></tr>
+        <tr><td class="term">Legal</td><td>Analyze cases, suggest strategies</td><td>Legal research assistants</td></tr>
+        <tr><td class="term">Engineering</td><td>Troubleshoot problems, design solutions</td><td>Fault diagnosis systems</td></tr>
+      </tbody></table></div>
+      <p><b>Modern expert systems</b> now use machine learning and AI to simulate expert judgment, improving their performance over time as they gain experience — just like humans.</p>
+    
+      <div class="callout tip"><b>Exam tip:</b> Memorize the 5 applications — Expert Systems, NLP, Speech Recognition, Computer Vision, Robotics — and the expert-system flow: User → User Interface → Inference Engine (reasons) ↔ Knowledge Base (stores the expert's knowledge) → Advice.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-ai-basics" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-ai-basics">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si"><b>කෘත්‍රිම බුද්ධිය (AI)</b> යනු මිනිස් බුද්ධිමත් හැසිරීම් අනුකරණය කිරීමට යන්ත්‍රවලට ඇති හැකියාවයි. එයට ඉගෙනීම, තර්ක කිරීම, ගැටලු විසඳීම සහ ස්වයං-නිවැරදි කිරීම ඇතුළත් වේ.</p>
+        <p class="si"><b>AI හි ප්‍රධාන යෙදුම් 5:</b> Expert Systems, Natural Language Processing, Speech Recognition, Computer Vision සහ Robotics.</p>
+        <p class="si"><b>Expert System</b> යනු නිශ්චිත ක්ෂේත්‍රයක විශේෂඥයෙකු ලෙස ක්‍රියා කිරීමට නිර්මාණය කළ පරිගණක වැඩසටහනකි. විශේෂඥ නොවන පරිශීලකයෙක් <b>user interface</b> හරහා <b>query</b> එකක් යවයි; <b>inference engine</b> එක, සැබෑ විශේෂඥයෙකුගේ දැනුමෙන් සකස් කළ <b>knowledge base</b> එක මත තර්ක කර උපදෙස් (<b>advice</b>) ලබා දෙයි.</p>
+        <p class="si">Expert systems වෛද්‍ය (MYCIN), මූල්‍ය, නීති සහ ඉංජිනේරු ක්ෂේත්‍රවල භාවිත වේ. නවීන expert systems අත්දැකීම් ලැබෙන විට තම ක්‍රියාකාරිත්වය වැඩිදියුණු කර ගැනීමට machine learning භාවිත කරයි.</p>
+      </div>
+    </section><section class="section" id="nlp-cv">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--red)">3</div><h2>Natural Language Processing &amp; Computer Vision</h2></div>
+      </div>
+      <p class="lede">Two of AI's biggest application areas: letting machines understand language, and letting machines "see".</p>
+      <div class="subhead"><span class="sub-dot" style="background:var(--red)"></span>Natural Language Processing (NLP)</div>
+      <p>NLP's goal is to let people and computers communicate in a natural (human) language, like English, rather than a computer language. It splits into two categories:</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/07-nlp.jpg" alt="Natural Language Processing slide — NLU and NLG definitions, plus applications wheel: translation, chatbots, sentiment analysis, smart assistants">
+      </div>
+      <div class="grammar-point">
+        <div class="g-name">Natural Language Understanding (NLU)<span class="g-tag">Comprehension</span></div>
+        <p>Focuses on enabling machines to comprehend and interpret human language — sentiment analysis, chatbots, document analysis, online search, email filtering.</p>
+      </div>
+      <div class="grammar-point">
+        <div class="g-name">Natural Language Generation (NLG)<span class="g-tag">Production</span></div>
+        <p>Focuses on enabling machines to produce coherent, contextually relevant human-like language — automatic summarization, predictive text, smart assistants, translation.</p>
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--yellow)"></span>Computer Vision (CV)</div>
+      <p>CV enables computers to interpret and extract information from images and videos, similar to human perception. Compare the pipelines:</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/10-computer-vision-example.jpg" alt="Human vision vs computer vision — a tomato seen by an eye and brain vs by a sensing device and computer, giving a probability result">
+        <figcaption>Human vision gives a single confident answer ("Tomato"); computer vision gives a probability breakdown (e.g. 84% Tomato, 15% Apple, 1% Peach).</figcaption>
+      </div>
+      <p><b>Traditional image processing pipeline:</b> Camera → Image Acquisition → Pre-processing → Segmentation → Representation → Classification (e.g. shading correction, thresholding/edge detection, feature extraction, Bayes classifier).</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/08-traditional-image-processing.jpg" alt="Traditional image processing pipeline diagrams showing hand gesture recognition and cell segmentation">
+      </div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/09-computer-vision-tasks.jpg" alt="Computer Vision tasks table and 7 applications of computer vision diagram">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Task</th><th>Description</th><th>Example</th></tr></thead><tbody>
+        <tr><td class="term">Image Classification</td><td>Identifying what object is in an image</td><td>Dog vs Cat</td></tr>
+        <tr><td class="term">Object Detection</td><td>Locating and identifying multiple objects</td><td>Detecting cars on the road</td></tr>
+        <tr><td class="term">Image Segmentation</td><td>Classifying each pixel in the image</td><td>Separating background from foreground</td></tr>
+        <tr><td class="term">Face Recognition</td><td>Identifying specific individuals from face data</td><td>Face ID on smartphones</td></tr>
+        <tr><td class="term">Pose Estimation</td><td>Understanding body positions and movements</td><td>Fitness apps checking posture</td></tr>
+        <tr><td class="term">Scene Understanding</td><td>Making sense of complex environments</td><td>Self-driving cars navigating roads</td></tr>
+      </tbody></table></div>
+      <p class="lede" style="margin-top:14px;">7 applications of computer vision: Safety/Security, Face recognition, Self-driving cars, Robotics, Augmented Reality, Movement/gesture recognition, Image recovery &amp; processing.</p>
+    
+      <div class="callout tip"><b>Exam tip:</b> NLU = <i>understanding</i> language (sentiment analysis, chatbots, email filtering); NLG = <i>generating</i> language (summarization, predictive text). For CV tasks: classification = <i>what</i> is it, detection = <i>where</i> are the objects, segmentation = label <i>every pixel</i>.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-nlp-cv" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-nlp-cv">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si"><b>NLP (Natural Language Processing)</b> හි අරමුණ මිනිසුන්ට සහ පරිගණකවලට පරිගණක භාෂාවක් වෙනුවට ඉංග්‍රීසි වැනි ස්වාභාවික භාෂාවකින් සන්නිවේදනය කිරීමට ඉඩ සැලසීමයි. එය කාණ්ඩ දෙකකි: <b>NLU</b> — යන්ත්‍රවලට මිනිස් භාෂාව තේරුම් ගැනීමට සහ අර්ථකථනය කිරීමට සලස්වයි (sentiment analysis, chatbots, email filtering). <b>NLG</b> — ස්වාභාවික, අදාළ මිනිස් වැනි භාෂාව නිපදවීමට සලස්වයි (summarization, predictive text, smart assistants, translation).</p>
+        <p class="si"><b>Computer Vision (CV)</b> යනු පරිගණකවලට රූප සහ වීඩියෝවලින් තොරතුරු අර්ථකථනය කර ලබා ගැනීමට හැකි කරන අතර, එය මිනිස් සංජානනයට සමානය. මිනිස් පෙනීම එක් ස්ථිර පිළිතුරක් (උදා: "Tomato") ලබා දෙන අතර, computer vision සම්භාවිතා බෙදාහැරීමක් (උදා: 84% Tomato, 15% Apple) ලබා දෙයි.</p>
+        <p class="si"><b>සාම්ප්‍රදායික රූප සැකසුම් ක්‍රියාවලිය:</b> Camera → Image Acquisition → Pre-processing → Segmentation → Representation → Classification. <b>CV කාර්යයන්:</b> Image Classification (රූපයේ ඇති වස්තුව හඳුනා ගැනීම), Object Detection (වස්තු කිහිපයක් ස්ථානගත කර හඳුනා ගැනීම), Image Segmentation (සෑම pixel එකක්ම වර්ගීකරණය), Face Recognition, Pose Estimation සහ Scene Understanding.</p>
+      </div>
+    </section><section class="section" id="robotics">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--yellow)">4</div><h2>Robotics</h2></div>
+      </div>
+      <p class="lede">A robot is a machine that <b>senses</b> its environment, <b>processes</b> data, and <b>performs</b> physical actions.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/11-robotics.jpg" alt="Robotics slide — industrial robot arm photo, robot definition, and types of robots">
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--yellow)"></span>Types of robots</div>
+      <div class="chip-row"><span class="chip">Industrial Robots</span><span class="chip">Service Robots</span><span class="chip">Humanoids</span><span class="chip">Autonomous Vehicles</span><span class="chip">Drones</span></div>
+      <div class="subhead"><span class="sub-dot" style="background:#4285F4"></span>How AI powers robots</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/12-ai-powers-robots.jpg" alt="How AI powers robots table — Computer Vision, NLP, Machine Learning, Reinforcement Learning roles">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>AI Area</th><th>Role in Robotics</th></tr></thead><tbody>
+        <tr><td class="term">Computer Vision</td><td>Enables robots to "see" and recognize objects</td></tr>
+        <tr><td class="term">Natural Language Processing</td><td>Helps robots understand human speech</td></tr>
+        <tr><td class="term">Machine Learning</td><td>Allows robots to improve with experience</td></tr>
+        <tr><td class="term">Reinforcement Learning</td><td>Enables decision-making through trial and error</td></tr>
+      </tbody></table></div>
+      <p>Robots also rely on <b>information retrieval and reasoning under uncertainty</b> to process instructions and predict consequences, plus <b>cognitive modeling and affective computing</b> to work alongside humans.</p>
+    
+      <div class="callout tip"><b>Exam tip:</b> A robot = <b>senses → processes → acts</b>. Know the 5 types (Industrial, Service, Humanoids, Autonomous Vehicles, Drones) and match each AI area to its role: CV = sees, NLP = understands speech, ML = improves with experience, RL = trial and error.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-robotics" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-robotics">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si"><b>රොබෝවරයා</b> යනු තම පරිසරය <b>සංවේදනය</b> (sense) කරන, දත්ත <b>සකසන</b> (process) සහ භෞතික ක්‍රියා <b>සිදු කරන</b> (perform) යන්ත්‍රයකි.</p>
+        <p class="si"><b>රොබෝ වර්ග:</b> Industrial Robots, Service Robots, Humanoids, Autonomous Vehicles සහ Drones.</p>
+        <p class="si"><b>AI රොබෝවරුන්ට බලය දෙන ආකාරය:</b> Computer Vision මගින් රොබෝවරුන්ට "දැකීමට" සහ වස්තු හඳුනා ගැනීමට හැකි වේ; NLP මගින් මිනිස් කථනය තේරුම් ගැනීමට උපකාරී වේ; Machine Learning මගින් අත්දැකීම් සමඟ වැඩිදියුණු වීමට ඉඩ සලසයි; Reinforcement Learning මගින් අත්හදා බැලීම සහ වැරදි (trial and error) හරහා තීරණ ගැනීමට හැකි වේ. රොබෝවරුන් උපදෙස් සකසා ප්‍රතිවිපාක පුරෝකථනය කිරීමට <b>information retrieval</b> සහ <b>reasoning under uncertainty</b> ද, මිනිසුන් සමඟ වැඩ කිරීමට <b>cognitive modeling</b> සහ <b>affective computing</b> ද භාවිත කරයි.</p>
+      </div>
+    </section><section class="section" id="aimldl">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:#7B61FF">5</div><h2>AI vs ML vs DL</h2></div>
+      </div>
+      <p class="lede">Three nested concepts, from broadest to most specific: <b>AI ⊃ ML ⊃ DL</b>.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/13-ai-vs-ml-vs-dl.jpg" alt="AI vs ML vs DL nested circles diagram, with AI as the outermost circle, ML inside it, DL at the core">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Concept</th><th>Scope</th><th>Key Feature</th></tr></thead><tbody>
+        <tr><td class="term">AI</td><td>Broad</td><td>Simulates intelligent behavior</td></tr>
+        <tr><td class="term">ML</td><td>Narrower</td><td>Learns from data and improves automatically</td></tr>
+        <tr><td class="term">DL</td><td>Most specific</td><td>Uses multi-layered neural networks for feature extraction</td></tr>
+      </tbody></table></div>
+      <div class="subhead"><span class="sub-dot" style="background:#4285F4"></span>Machine Learning — 3 key types</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/14-machine-learning-types.jpg" alt="Machine Learning types diagram — Supervised, Unsupervised, Reinforcement Learning">
+      </div>
+      <ul class="phrase-list">
+        <li><span class="en"><b>Supervised Learning:</b> learns from labeled data — task-driven, predicts the next value (e.g. email spam detection, house price prediction).</span></li>
+        <li><span class="en"><b>Unsupervised Learning:</b> finds patterns in unlabeled data — data-driven, identifies clusters (e.g. customer segmentation, anomaly detection).</span></li>
+        <li><span class="en"><b>Reinforcement Learning:</b> learns via rewards and punishments — learns from mistakes (e.g. AlphaGo, self-driving cars).</span></li>
+      </ul>
+      <div class="subhead"><span class="sub-dot" style="background:var(--purple)"></span>Deep Learning</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/15-deep-learning.jpg" alt="Deep Learning vs Machine Learning pipeline diagram — feature extraction plus classification done manually vs automatically by a neural network">
+      </div>
+      <p>Deep Learning uses <b>Artificial Neural Networks (ANNs)</b> with many hidden layers, mimicking the human brain's structure to learn complex features automatically.</p>
+      <div class="callout"><b>Machine Learning pipeline:</b> Input → (Human does) Feature Extraction → Classification → Output.<br><b>Deep Learning pipeline:</b> Input → Feature Extraction + Classification done automatically by the network → Output.</div>
+      <p>DL excels at image classification, speech recognition, and natural language understanding — but requires large datasets and high computational power (GPUs, and training can take days/weeks).</p>
+    
+      <div class="callout tip"><b>Exam tip:</b> AI ⊃ ML ⊃ DL. The classic question: in ML a <b>human</b> does feature extraction, in DL the <b>network</b> does it automatically (but needs big data + GPUs). Supervised = labeled data, Unsupervised = clusters/patterns, Reinforcement = rewards &amp; punishments.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-aimldl" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-aimldl">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si">AI, ML සහ DL යනු පුළුල්ම සිට නිශ්චිතම දක්වා එකක් තුළ එකක් ඇති සංකල්ප තුනකි: <b>AI ⊃ ML ⊃ DL</b>. <b>AI</b> — බුද්ධිමත් හැසිරීම් අනුකරණය කරයි; <b>ML</b> — දත්ත වලින් ඉගෙන ගෙන ස්වයංක්‍රීයව වැඩිදියුණු වේ; <b>DL</b> — feature extraction සඳහා බහු-ස්ථර neural networks භාවිත කරයි.</p>
+        <p class="si"><b>Machine Learning වර්ග 3:</b> <b>Supervised Learning</b> — ලේබල් කළ (labeled) දත්ත වලින් ඉගෙන ගනී, ඊළඟ අගය පුරෝකථනය කරයි (spam detection, ගෙවල් මිල පුරෝකථනය). <b>Unsupervised Learning</b> — ලේබල් නොකළ දත්තවල රටා සොයයි, clusters හඳුනා ගනී (customer segmentation, anomaly detection). <b>Reinforcement Learning</b> — ත්‍යාග සහ දඬුවම් හරහා ඉගෙන ගනී, වැරදි වලින් ඉගෙනීම (AlphaGo, self-driving cars).</p>
+        <p class="si"><b>Deep Learning</b> මිනිස් මොළයේ ව්‍යුහය අනුකරණය කරමින් සංකීර්ණ features ස්වයංක්‍රීයව ඉගෙනීමට විශාල hidden layers සහිත <b>Artificial Neural Networks (ANNs)</b> භාවිත කරයි. <b>ML pipeline:</b> Input → (මිනිසා විසින්) Feature Extraction → Classification → Output. <b>DL pipeline:</b> Input → Feature Extraction සහ Classification දෙකම network එක විසින් ස්වයංක්‍රීයව කරයි → Output.</p>
+        <p class="si">DL සඳහා විශාල දත්ත කට්ටල සහ ඉහළ පරිගණක ශක්තියක් (GPUs) අවශ්‍ය වන අතර training දින හෝ සති ගත විය හැක.</p>
+      </div>
+    </section><section class="section" id="real-world">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:#EA4335">6</div><h2>AI in a Nutshell — Real-World Implementations</h2></div>
+      </div>
+      <p class="lede">Putting it all together: real systems almost always combine several AI areas at once.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/16-ai-in-a-nutshell.jpg" alt="AI in a nutshell — comparison table of AI, ML, DL scope and key feature, plus a self-driving car detecting objects photo">
+      </div>
+      <div class="chip-row"><span class="chip">🚗 Self-driving cars — CV + ML + real-time sensors</span><span class="chip">💬 LLMs — ChatGPT, Google Gemini</span><span class="chip">🏥 Healthcare — ML diagnostic tools for diseases like cancer</span></div>
+      <div class="callout tip"><b>Remember:</b> AI is the broad goal, ML is how systems learn from data, and DL is the neural-network technique that powers most modern breakthroughs (LLMs included).</div>
+    
+      <div class="callout tip"><b>Exam tip:</b> Real systems combine several AI areas — e.g. a self-driving car = Computer Vision + Machine Learning + real-time sensors. If asked for a Deep Learning example in daily life, LLMs like ChatGPT and Gemini are the go-to answer.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-real-world" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-real-world">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si">සැබෑ පද්ධති බොහෝ විට AI ක්ෂේත්‍ර කිහිපයක් එකවර ඒකාබද්ධ කරයි. උදාහරණ: <b>Self-driving cars</b> — CV + ML + තත්‍ය-කාලීන සංවේදක; <b>LLMs</b> — ChatGPT, Google Gemini; <b>සෞඛ්‍ය සේවා</b> — පිළිකා වැනි රෝග සඳහා ML රෝග විනිශ්චය මෙවලම්.</p>
+        <p class="si"><b>මතක තබා ගන්න:</b> AI යනු පුළුල් අරමුණයි, ML යනු පද්ධති දත්ත වලින් ඉගෙන ගන්නා ආකාරයයි, DL යනු නවීන දියුණුවෙන් බොහොමයකට (LLMs ඇතුළව) බලය දෙන neural-network තාක්ෂණයයි.</p>
+      </div>
+    </section><section class="section" id="iot">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--green)">7</div><h2>Internet of Things (IoT)</h2></div>
+      </div>
+      <p class="lede">IoT is a network of physical objects embedded with sensors, software, and other technologies that connect and exchange data over the internet or other communication networks.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/17-iot-examples.jpg" alt="IoT real-world examples — Amazon Go checkout-free store, smart agriculture sensors, smart home devices">
+      </div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/18-iot-diagram.jpg" alt="Internet of Things diagram — IoT enabled factories, shops, mobile devices, edge devices, datacenters, ships, cities, homes">
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--green)"></span>How IoT works — 4 stages</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/19-how-iot-works.jpg" alt="How IoT Works diagram — sensors, gateway, cloud/server, mobile app">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Stage</th><th>What it does</th></tr></thead><tbody>
+        <tr><td class="term">Sensors</td><td>Collect data (motion, temperature, lux, pressure, etc.)</td></tr>
+        <tr><td class="term">Connectivity / Gateway</td><td>Sends data to the cloud (WiFi, Bluetooth, cellular)</td></tr>
+        <tr><td class="term">Data Processing</td><td>Analyzes the data for patterns and insights</td></tr>
+        <tr><td class="term">User Interface</td><td>Displays actionable information (e.g. mobile app)</td></tr>
+      </tbody></table></div>
+      <div class="subhead"><span class="sub-dot" style="background:#4285F4"></span>Where IoT is used</div>
+      <div class="chip-row"><span class="chip">Smart Homes</span><span class="chip">Smart Cities</span><span class="chip">Wearable Tech</span><span class="chip">Industrial IoT / Factories</span><span class="chip">Agriculture</span><span class="chip">Amazon Go stores</span></div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--yellow)"></span>Example: Warehouse IoT</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/20-warehouse-iot.jpg" alt="IoT-enabled warehouse management diagram — incoming/outgoing inventory, cloud aggregators, ERP system, visual dashboard">
+      </div>
+      <p>Warehouses use IoT machinery and sensors to track product generation and location. Sensors on incoming/outgoing inventory feed a <b>cloud aggregator</b>, which connects to an <b>ERP system</b> and a <b>visual dashboard</b> for staff. Benefits: reduces time and money, and improves inventory accuracy.</p>
+    
+      <div class="callout tip"><b>Exam tip:</b> Memorize the 4 stages in order: <b>Sensors → Connectivity/Gateway → Data Processing → User Interface</b>. For the warehouse example: sensors → cloud aggregator → ERP system → visual dashboard (benefit: saves time and money, improves inventory accuracy).</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-iot" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-iot">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si"><b>IoT (Internet of Things)</b> යනු සංවේදක, මෘදුකාංග සහ අනෙකුත් තාක්ෂණයන් සහිතව ඇතුළත් කළ භෞතික වස්තූන්ගේ ජාලයක් වන අතර, ඒවා අන්තර්ජාලය හෝ වෙනත් සන්නිවේදන ජාල හරහා දත්ත සම්බන්ධ කර හුවමාරු කරයි.</p>
+        <p class="si"><b>IoT ක්‍රියා කරන ආකාරය — අදියර 4:</b> <b>Sensors</b> — දත්ත එකතු කරයි (චලනය, උෂ්ණත්වය, lux, පීඩනය). <b>Connectivity / Gateway</b> — WiFi, Bluetooth හෝ cellular හරහා දත්ත cloud එකට යවයි. <b>Data Processing</b> — රටා සහ අවබෝධ සඳහා දත්ත විශ්ලේෂණය කරයි. <b>User Interface</b> — mobile app එකක් වැනි මාධ්‍යයකින් ක්‍රියාත්මක කළ හැකි තොරතුරු පෙන්වයි.</p>
+        <p class="si"><b>භාවිත:</b> Smart Homes, Smart Cities, Wearable Tech, Industrial IoT, කෘෂිකර්මය සහ Amazon Go stores. <b>Warehouse IoT උදාහරණය:</b> ගබඩාවට ඇතුළු වන/පිටවන තොග මත ඇති සංවේදක <b>cloud aggregator</b> එකකට දත්ත යවන අතර, එය <b>ERP system</b> එකකට සහ කාර්ය මණ්ඩලය සඳහා <b>visual dashboard</b> එකකට සම්බන්ධ වේ. ප්‍රතිලාභ: කාලය සහ මුදල් ඉතිරි කරයි, තොග නිරවද්‍යතාව වැඩි කරයි.</p>
+      </div>
+    </section><section class="section" id="quantum">
+      <div class="kicker">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--red)">8</div><h2>Quantum Computing</h2></div>
+      </div>
+      <p class="lede">Quantum computing uses the principles of quantum physics. Unlike classical bits (0 or 1), quantum bits — <b>qubits</b> — can be both at once.</p>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/21-quantum-computing-intro.jpg" alt="Quantum computing intro slide with a quantum processor chandelier-style photo">
+      </div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--red)"></span>Three key quantum properties ("SEI")</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/22-qubits-superposition.jpg" alt="Understanding qubits and superposition — classical bit vs qubit Bloch sphere diagram">
+      </div>
+      <ul class="phrase-list">
+        <li><span class="en"><b>Superposition:</b> a qubit can be 0, 1, or both simultaneously — like a coin still spinning in the air.</span></li>
+        <li><span class="en"><b>Entanglement:</b> qubits can be linked regardless of distance — changing one instantly affects the other.</span></li>
+        <li><span class="en"><b>Quantum Interference:</b> amplifies correct answers and cancels out wrong ones, improving accuracy.</span></li>
+      </ul>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/23-classical-vs-quantum.jpg" alt="Classical vs Quantum Computers comparison table — data unit, processing, power scaling, example tasks">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Feature</th><th>Classical Computer</th><th>Quantum Computer</th></tr></thead><tbody>
+        <tr><td class="term">Data Unit</td><td>Bit (0 or 1)</td><td>Qubit (0, 1, or both)</td></tr>
+        <tr><td class="term">Processing</td><td>Sequential</td><td>Parallel (via superposition)</td></tr>
+        <tr><td class="term">Power Scaling</td><td>Linear</td><td>Exponential</td></tr>
+        <tr><td class="term">Example Task</td><td>Email, browsing</td><td>Protein folding, optimization</td></tr>
+      </tbody></table></div>
+      <div class="subhead"><span class="sub-dot" style="background:#4285F4"></span>Real-world applications</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/24-quantum-applications.jpg" alt="Real-world applications of quantum computing — cryptography, pharmaceuticals, logistics, finance, AI and ML">
+      </div>
+      <div class="chip-row"><span class="chip">Cryptography — Shor's algorithm (breaking RSA)</span><span class="chip">Pharmaceuticals — drug discovery via molecule simulation</span><span class="chip">Logistics — route optimization (DHL, FedEx)</span><span class="chip">Finance — risk modeling, fraud detection</span><span class="chip">AI &amp; ML — quantum-enhanced algorithms</span></div>
+      <div class="subhead"><span class="sub-dot" style="background:var(--purple)"></span>Companies using Quantum Computing</div>
+      <div class="figure">
+        <img src="assets/year-1/2-computer-arc/1-comp-arc/7-emerging/25-quantum-companies.jpg" alt="Companies using quantum computing — IBM, Google, D-Wave, Amazon Braket, Microsoft Azure Quantum, with photos of quantum processors">
+      </div>
+      <div class="table-wrap"><table class="vtable"><thead><tr><th>Company</th><th>Product / Focus</th></tr></thead><tbody>
+        <tr><td class="term">IBM</td><td>IBM Q System One</td></tr>
+        <tr><td class="term">Google</td><td>Sycamore — achieved "quantum supremacy" (2019)</td></tr>
+        <tr><td class="term">D-Wave</td><td>Quantum annealing systems for optimization</td></tr>
+        <tr><td class="term">Amazon / Microsoft</td><td>Amazon Braket &amp; Microsoft Azure Quantum — cloud-based QC services</td></tr>
+      </tbody></table></div>
+    
+      <div class="callout tip"><b>Exam tip:</b> Remember <b>SEI</b> — Superposition, Entanglement, Interference — and the classical vs quantum contrasts: bit vs qubit, sequential vs parallel, linear vs exponential. Two facts that get asked: Google's Sycamore (2019) = quantum supremacy, and Shor's algorithm threatens RSA cryptography.</div>
+    
+      <div class="si-divider"><button type="button" class="si-toggle" data-target="si-quantum" aria-expanded="false"><span class="flag">🇱🇰</span> සිංහල <span class="arrow">▾</span></button></div>
+      <div class="si-panel" id="si-quantum">
+        <span class="si-label">සිංහල පරිවර්තනය</span>
+        <p class="si"><b>Quantum computing</b> quantum භෞතික විද්‍යාවේ මූලධර්ම භාවිත කරයි. සම්ප්‍රදායික bits (0 හෝ 1) මෙන් නොව, quantum bits — <b>qubits</b> — එකවර දෙකම විය හැක.</p>
+        <p class="si"><b>quantum ගුණාංග 3 ("SEI"):</b> <b>Superposition</b> — qubit එකකට 0, 1 හෝ එකවර දෙකම විය හැක (ගුවනේ කැරකෙන කාසියක් මෙන්). <b>Entanglement</b> — qubits දුර ප්‍රමාණය නොසලකා සම්බන්ධ කළ හැකි අතර, එකක් වෙනස් කිරීම අනෙකට ක්ෂණිකව බලපායි. <b>Quantum Interference</b> — නිවැරදි පිළිතුරු ඉස්මතු කර වැරදි ඒවා ඉවත් කර නිරවද්‍යතාව වැඩි කරයි.</p>
+        <p class="si"><b>Classical vs Quantum:</b> Classical පරිගණක bits භාවිත කර අනුපිළිවෙලින් (sequential) සකසන අතර ශක්තිය රේඛීයව (linear) වැඩි වේ; quantum පරිගණක qubits භාවිත කර superposition හරහා සමාන්තරව (parallel) සකසන අතර ශක්තිය ඝාතීයව (exponential) වැඩි වේ.</p>
+        <p class="si"><b>යෙදුම්:</b> Cryptography (Shor's algorithm — RSA බිඳීම), ඖෂධ ක්ෂේත්‍රය (අණු අනුකරණය), Logistics (DHL, FedEx මාර්ග ප්‍රශස්තකරණය), මූල්‍ය (අවදානම් ආකෘති, වංචා හඳුනාගැනීම), AI සහ ML. <b>සමාගම්:</b> IBM (IBM Q System One), Google (Sycamore — 2019 දී "quantum supremacy" ලබා ගත්තේය), D-Wave (quantum annealing), Amazon Braket සහ Microsoft Azure Quantum (cloud පදනම් සේවා).</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         APPENDED SECTIONS — beyond the original 8-topic lesson
+         ============================================================ -->
+
+    <section class="section collapsible" id="exam">
+      <div class="kicker" data-toggle="exam">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--purple)">9</div><h2>What to Remember for the Exam</h2></div>
+        <button type="button" class="collapse-toggle" id="exam-toggle" aria-expanded="false" aria-controls="exam-body" aria-label="Expand section"><span class="chevron">▾</span></button>
+      </div>
+      <div class="collapse-body" id="exam-body">
+      <p class="lede">The exact facts this topic loves to test — memorize these cold.</p>
+      <ul class="exam-list">
+        <li><span class="chk"></span><span><b>John McCarthy</b> coined "Artificial Intelligence" at the <b>Dartmouth Conference, 1956</b>.</span></li>
+        <li><span class="chk"></span><span>AI went through <b>two "winters"</b> — after the 1st wave (rule-based/symbolic AI) and after the Expert Systems boom — both caused by funding cuts and scaling problems.</span></li>
+        <li><span class="chk"></span><span><b>Expert systems</b> = User Interface → Inference Engine → Knowledge Base, built to preserve scarce/expensive human expertise.</span></li>
+        <li><span class="chk"></span><span>NLP splits into <b>NLU</b> (understanding language) and <b>NLG</b> (generating language) — know which is which.</span></li>
+        <li><span class="chk"></span><span><b>AI ⊃ ML ⊃ DL</b> — AI is broadest, ML learns from data, DL uses multi-layer neural networks and needs the most data/compute.</span></li>
+        <li><span class="chk"></span><span>3 ML types — <b>Supervised</b> (labeled data), <b>Unsupervised</b> (finds patterns), <b>Reinforcement</b> (rewards/punishments).</span></li>
+        <li><span class="chk"></span><span>IoT's 4 stages, in order: <b>Sensors → Connectivity/Gateway → Data Processing → User Interface</b>.</span></li>
+        <li><span class="chk"></span><span>A <b>qubit</b> can be 0, 1, or <b>both at once</b> (superposition) — this is what gives quantum computers exponential rather than linear power scaling.</span></li>
+        <li><span class="chk"></span><span><b>Quantum supremacy</b> = a quantum computer solving something a classical computer practically cannot (Google's Sycamore, 2019).</span></li>
+        <li><span class="chk"></span><span>Know the 3 quantum properties — <b>Superposition, Entanglement, Interference</b> ("SEI") — and one application area each (cryptography, pharma, logistics, finance, AI/ML).</span></li>
+      </ul>
+      </div>
+    </section>
+
+    <section class="section collapsible" id="glossary">
+      <div class="kicker" data-toggle="glossary">
+        <div class="kicker-left"><div class="num-badge" style="background:#5f6368">10</div><h2>Glossary — Acronyms &amp; Meanings</h2></div>
+        <button type="button" class="collapse-toggle" id="glossary-toggle" aria-expanded="false" aria-controls="glossary-body" aria-label="Expand section"><span class="chevron">▾</span></button>
+      </div>
+      <div class="collapse-body" id="glossary-body">
+      <div class="table-wrap">
+      <table class="gtable">
+        <thead><tr><th>Acronym</th><th>Full term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="acr">AI</td><td class="term-full">Artificial Intelligence</td><td>Capability of machines to imitate intelligent human behavior — learning, reasoning, problem-solving, self-correction.</td></tr>
+          <tr><td class="acr">ML</td><td class="term-full">Machine Learning</td><td>Subset of AI where systems learn from data and improve performance without being explicitly reprogrammed.</td></tr>
+          <tr><td class="acr">DL</td><td class="term-full">Deep Learning</td><td>Subset of ML using multi-layer artificial neural networks to automatically learn complex features.</td></tr>
+          <tr><td class="acr">NLP</td><td class="term-full">Natural Language Processing</td><td>Field enabling computers to work with human (natural) language rather than computer language.</td></tr>
+          <tr><td class="acr">NLU</td><td class="term-full">Natural Language Understanding</td><td>NLP branch focused on machines comprehending and interpreting human language.</td></tr>
+          <tr><td class="acr">NLG</td><td class="term-full">Natural Language Generation</td><td>NLP branch focused on machines producing coherent, human-like language.</td></tr>
+          <tr><td class="acr">CV</td><td class="term-full">Computer Vision</td><td>Field enabling computers to interpret and extract information from images and video.</td></tr>
+          <tr><td class="acr">ANN</td><td class="term-full">Artificial Neural Network</td><td>A network of connected nodes loosely modeled on the brain, used in Deep Learning.</td></tr>
+          <tr><td class="acr">GPU</td><td class="term-full">Graphics Processing Unit</td><td>Powerful parallel processor that makes training large Deep Learning models practical.</td></tr>
+          <tr><td class="acr">IoT</td><td class="term-full">Internet of Things</td><td>Network of physical objects with sensors and software that connect and exchange data online.</td></tr>
+          <tr><td class="acr">ERP</td><td class="term-full">Enterprise Resource Planning</td><td>Business software system (e.g. used in the Warehouse IoT example) that connects operational data across an organization.</td></tr>
+          <tr><td class="acr">QC</td><td class="term-full">Quantum Computing</td><td>Computing that uses quantum-physics properties (qubits, superposition, entanglement) instead of classical bits.</td></tr>
+          <tr><td class="acr">—</td><td class="term-full">Qubit</td><td>Basic unit of quantum information — unlike a classical bit, it can represent 0, 1, or both at once.</td></tr>
+          <tr><td class="acr">LLM</td><td class="term-full">Large Language Model</td><td>Massive neural network trained on text data to hold conversations, generate text, translate, and more (e.g. ChatGPT).</td></tr>
+        </tbody>
+      </table>
+      </div>
+      </div>
+    </section>
+
+    <section class="section collapsible" id="comparison">
+      <div class="kicker" data-toggle="comparison">
+        <div class="kicker-left"><div class="num-badge" style="background:#5f6368">11</div><h2>Comparison Tables</h2></div>
+        <button type="button" class="collapse-toggle" id="comparison-toggle" aria-expanded="false" aria-controls="comparison-body" aria-label="Expand section"><span class="chevron">▾</span></button>
+      </div>
+      <div class="collapse-body" id="comparison-body">
+
+      <div class="subhead"><span class="sub-dot" style="background:var(--blue)"></span>AI vs ML vs DL</div>
+      <div class="table-wrap">
+        <table class="ctable">
+          <thead><tr><th>Concept</th><th>Scope</th><th>Key Feature</th><th>Data Need</th><th>Hardware</th></tr></thead>
+          <tbody>
+            <tr><td class="row-head">AI</td><td>Broadest</td><td>Simulates intelligent behavior</td><td>Varies</td><td>Standard computers</td></tr>
+            <tr><td class="row-head">ML</td><td>Subset of AI</td><td>Learns from data and improves automatically</td><td>Moderate–large</td><td>Standard to powerful</td></tr>
+            <tr><td class="row-head">DL</td><td>Subset of ML</td><td>Multi-layer neural networks, automatic feature learning</td><td>Very large</td><td>Requires GPUs/TPUs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subhead" style="margin-top:30px;"><span class="sub-dot" style="background:var(--yellow)"></span>Supervised vs. Unsupervised vs. Reinforcement Learning</div>
+      <div class="table-wrap">
+        <table class="ctable">
+          <thead><tr><th>Feature</th><th>Supervised</th><th>Unsupervised</th><th>Reinforcement</th></tr></thead>
+          <tbody>
+            <tr><td class="row-head">Data</td><td>Labeled</td><td>Unlabeled</td><td>No fixed dataset — an environment</td></tr>
+            <tr><td class="row-head">Goal</td><td>Predict the next value</td><td>Identify clusters / patterns</td><td>Learn optimal behavior via rewards</td></tr>
+            <tr><td class="row-head">Driven by</td><td>Task</td><td>Data</td><td>Trial and error</td></tr>
+            <tr><td class="row-head">Example</td><td>Spam detection, price prediction</td><td>Customer segmentation, anomaly detection</td><td>AlphaGo, self-driving cars</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subhead" style="margin-top:30px;"><span class="sub-dot" style="background:var(--green)"></span>Classical vs. Quantum Computers</div>
+      <div class="table-wrap">
+        <table class="ctable">
+          <thead><tr><th>Feature</th><th>Classical Computer</th><th>Quantum Computer</th></tr></thead>
+          <tbody>
+            <tr><td class="row-head">Data Unit</td><td>Bit (0 or 1)</td><td>Qubit (0, 1, or both)</td></tr>
+            <tr><td class="row-head">Processing</td><td>Sequential</td><td>Parallel (via superposition)</td></tr>
+            <tr><td class="row-head">Power Scaling</td><td>Linear</td><td>Exponential</td></tr>
+            <tr><td class="row-head">Maturity</td><td>Mature, reliable</td><td>Emerging, experimental</td></tr>
+            <tr><td class="row-head">Example Task</td><td>Email, browsing, documents</td><td>Protein folding, optimization</td></tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+
+    <!-- ===== SINHALA VOCABULARY GLOSSARY ===== -->
+    <section class="section collapsible" id="sinhala-vocab" style="scroll-margin-top:84px;">
+      <div class="kicker" data-toggle="sinhala-vocab">
+        <div class="kicker-left">
+          <div class="num-badge" style="background:linear-gradient(135deg,#34A853,#1a73e8)">12</div>
+          <h2>🇱🇰 Sinhala Vocabulary — පාඩමෙහි දුෂ්කර වචන</h2>
+        </div>
+        <button type="button" class="collapse-toggle" id="sinhala-vocab-toggle" aria-expanded="false" aria-controls="sinhala-vocab-body" aria-label="Expand section"><span class="chevron">▾</span></button>
+      </div>
+      <div class="collapse-body" id="sinhala-vocab-body">
+      <p class="lede" style="margin-bottom:22px;">This lesson's difficult English words — with Sinhala meanings and example sentences from daily life, AI/tech, and general fields.</p>
+
+      <div class="vocab-grid">
+
+        <div class="vocab-card">
+          <div class="vocab-header">
+            <span class="vocab-word">inference</span>
+            <span class="vocab-pos">noun</span>
+          </div>
+          <div class="vocab-body">
+            <div class="vocab-meanings">
+              <div class="vocab-en">
+                <span class="vocab-lang-label">🇬🇧 English</span>
+                <p>A conclusion reached by reasoning from evidence, rather than being told directly.</p>
+              </div>
+              <div class="vocab-si">
+                <span class="vocab-lang-label">🇱🇰 සිංහල</span>
+                <p>සාක්ෂි මත පදනම්ව තර්කනයෙන් ලබාගන්නා නිගමනයක්</p>
+              </div>
+            </div>
+            <div class="vocab-sentences-head">Sample Sentences</div>
+            <ul class="vocab-sentences">
+              <li><span class="vocab-tag tag-daily">Daily</span><span>From her tired voice, I made an <span class="vocab-hl">inference</span> that she hadn't slept well.</span></li>
+              <li><span class="vocab-tag tag-net">AI</span><span>The expert system's <span class="vocab-hl">inference</span> engine reasons over the knowledge base to give advice.</span></li>
+              <li><span class="vocab-tag tag-sw">Software</span><span>Once a model is trained, running it on new data is called <span class="vocab-hl">inference</span>, not training.</span></li>
+              <li><span class="vocab-tag tag-hw">Hardware</span><span>Some chips are built specifically to speed up <span class="vocab-hl">inference</span> rather than training.</span></li>
+              <li><span class="vocab-tag tag-cyber">Cyber</span><span>Analysts drew an <span class="vocab-hl">inference</span> about the attacker's location from the log timestamps.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="vocab-header">
+            <span class="vocab-word">superposition</span>
+            <span class="vocab-pos">noun</span>
+          </div>
+          <div class="vocab-body">
+            <div class="vocab-meanings">
+              <div class="vocab-en">
+                <span class="vocab-lang-label">🇬🇧 English</span>
+                <p>The state of existing in two or more conditions at the same time, before being observed or measured.</p>
+              </div>
+              <div class="vocab-si">
+                <span class="vocab-lang-label">🇱🇰 සිංහල</span>
+                <p>නිරීක්ෂණය කිරීමට පෙර එකවර තත්ත්ව දෙකකින් හෝ වැඩිගණනකින් පැවතීම</p>
+              </div>
+            </div>
+            <div class="vocab-sentences-head">Sample Sentences</div>
+            <ul class="vocab-sentences">
+              <li><span class="vocab-tag tag-daily">Daily</span><span>It felt like the plan was in <span class="vocab-hl">superposition</span> — both happening and not happening until confirmed.</span></li>
+              <li><span class="vocab-tag tag-net">AI/QC</span><span>A qubit in <span class="vocab-hl">superposition</span> can represent 0 and 1 at the same time.</span></li>
+              <li><span class="vocab-tag tag-hw">Hardware</span><span><span class="vocab-hl">Superposition</span> is what lets a quantum processor explore many possibilities in parallel.</span></li>
+              <li><span class="vocab-tag tag-sw">Software</span><span>Quantum algorithms are designed to take advantage of <span class="vocab-hl">superposition</span> for speed.</span></li>
+              <li><span class="vocab-tag tag-cyber">Cyber</span><span>Future encryption may need to resist attacks that exploit <span class="vocab-hl">superposition</span>-based quantum computers.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="vocab-header">
+            <span class="vocab-word">scalable</span>
+            <span class="vocab-pos">adjective</span>
+          </div>
+          <div class="vocab-body">
+            <div class="vocab-meanings">
+              <div class="vocab-en">
+                <span class="vocab-lang-label">🇬🇧 English</span>
+                <p>Able to grow or handle a much larger workload without breaking down or needing a complete redesign.</p>
+              </div>
+              <div class="vocab-si">
+                <span class="vocab-lang-label">🇱🇰 සිංහල</span>
+                <p>විශාල වශයෙන් වර්ධනය කිරීමට හෝ වැඩි බරක් දරාගැනීමට හැකි</p>
+              </div>
+            </div>
+            <div class="vocab-sentences-head">Sample Sentences</div>
+            <ul class="vocab-sentences">
+              <li><span class="vocab-tag tag-daily">Daily</span><span>We chose a plan that's <span class="vocab-hl">scalable</span> so we don't have to redo everything later.</span></li>
+              <li><span class="vocab-tag tag-net">AI</span><span>Expert systems built on hard-coded rules turned out not to be very <span class="vocab-hl">scalable</span>.</span></li>
+              <li><span class="vocab-tag tag-hw">Hardware</span><span>Cloud GPUs make Deep Learning training more <span class="vocab-hl">scalable</span> than a single desktop machine.</span></li>
+              <li><span class="vocab-tag tag-sw">Software</span><span>The recommendation engine needed a more <span class="vocab-hl">scalable</span> architecture as the user base grew.</span></li>
+              <li><span class="vocab-tag tag-cyber">Cyber</span><span>A <span class="vocab-hl">scalable</span> logging system is essential once you're monitoring thousands of devices.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="vocab-header">
+            <span class="vocab-word">autonomous</span>
+            <span class="vocab-pos">adjective</span>
+          </div>
+          <div class="vocab-body">
+            <div class="vocab-meanings">
+              <div class="vocab-en">
+                <span class="vocab-lang-label">🇬🇧 English</span>
+                <p>Able to act and make decisions independently, without needing constant human control.</p>
+              </div>
+              <div class="vocab-si">
+                <span class="vocab-lang-label">🇱🇰 සිංහල</span>
+                <p>නිරන්තර මිනිස් පාලනයකින් තොරව ස්වාධීනව ක්‍රියා කිරීමට හැකි</p>
+              </div>
+            </div>
+            <div class="vocab-sentences-head">Sample Sentences</div>
+            <ul class="vocab-sentences">
+              <li><span class="vocab-tag tag-daily">Daily</span><span>The vacuum robot is fully <span class="vocab-hl">autonomous</span> — it cleans without anyone guiding it.</span></li>
+              <li><span class="vocab-tag tag-net">AI</span><span>An <span class="vocab-hl">autonomous</span> vehicle uses Computer Vision, ML, and sensors together to drive itself.</span></li>
+              <li><span class="vocab-tag tag-hw">Hardware</span><span>Drones can fly <span class="vocab-hl">autonomous</span> delivery routes using GPS and onboard sensors.</span></li>
+              <li><span class="vocab-tag tag-sw">Software</span><span>The agent was trained with reinforcement learning to behave <span class="vocab-hl">autonomously</span> in the game.</span></li>
+              <li><span class="vocab-tag tag-cyber">Cyber</span><span><span class="vocab-hl">Autonomous</span> security systems can respond to threats faster than a human analyst.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="vocab-header">
+            <span class="vocab-word">simulate</span>
+            <span class="vocab-pos">verb</span>
+          </div>
+          <div class="vocab-body">
+            <div class="vocab-meanings">
+              <div class="vocab-en">
+                <span class="vocab-lang-label">🇬🇧 English</span>
+                <p>To imitate or reproduce the behavior of a real system, process, or situation, often using a model.</p>
+              </div>
+              <div class="vocab-si">
+                <span class="vocab-lang-label">🇱🇰 සිංහල</span>
+                <p>සැබෑ පද්ධතියක හෝ තත්ත්වයක හැසිරීම අනුකරණය කිරීම</p>
+              </div>
+            </div>
+            <div class="vocab-sentences-head">Sample Sentences</div>
+            <ul class="vocab-sentences">
+              <li><span class="vocab-tag tag-daily">Daily</span><span>We ran a mock interview to <span class="vocab-hl">simulate</span> the real exam conditions.</span></li>
+              <li><span class="vocab-tag tag-net">AI</span><span>AI's goal is to <span class="vocab-hl">simulate</span> intelligent human behavior in machines.</span></li>
+              <li><span class="vocab-tag tag-hw">Hardware</span><span>Quantum computers can <span class="vocab-hl">simulate</span> molecules for drug discovery far faster than classical ones.</span></li>
+              <li><span class="vocab-tag tag-sw">Software</span><span>Deep Learning networks are designed to <span class="vocab-hl">simulate</span> how the human brain processes information.</span></li>
+              <li><span class="vocab-tag tag-cyber">Cyber</span><span>Security teams <span class="vocab-hl">simulate</span> phishing attacks to test employee awareness.</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+      </div>
+    </section>
+
+    <!-- ===== MCQ PRACTICE TEST ===== -->
+    <section class="section collapsible" id="mcq-practice">
+      <div class="kicker" data-toggle="mcq-practice">
+        <div class="kicker-left"><div class="num-badge" style="background:var(--red)">13</div><h2>📝 MCQ Practice Test — 80 Questions</h2></div>
+        <button type="button" class="collapse-toggle" id="mcq-practice-toggle" aria-expanded="false" aria-controls="mcq-practice-body" aria-label="Expand section"><span class="chevron">▾</span></button>
+      </div>
+      <div class="collapse-body" id="mcq-practice-body">
+      <p class="lede">The module's final assessment is a <b>Multiple Choice online class test (1 hour, 50% weighting)</b> — so practice in that exact format. 80 hard, exam-style MCQs covering every section of this lesson equally (10 per section). Click an option to check it; only one attempt is scored per question.</p>
+      <div class="mcq-quiz-header">
+        <span id="mcqScore">Score: 0 / 80</span>
+        <button type="button" class="mcq-reset-btn" id="mcqReset">↺ Reset Quiz</button>
+      </div>
+      <div id="mcqContainer"></div>
+      </div>
+    </section>
+
+    <footer>Computer Architecture &amp; Operating Systems Design — Neroshana Gunasekara · COMP40050
+      <br><a class="back-top" href="#top">Back to top ↑</a>
+    </footer>
+  </main>
+</div>
+
+<div class="bottom-nav">
+  <a class="path-btn prev" href="06-display-technologies-gpu-architecture.html"><span class="p-arrow">←</span><span class="p-text"><span class="p-kicker">Previous</span><span class="p-title">06. Display Tech &amp; GPU</span></span></a>
+  <a class="path-btn index" href="comp40050-index.html"><span class="p-text"><span class="p-kicker">All Topics</span><span class="p-title">🏠 Main Index</span></span></a>
+  <span class="path-spacer"></span>
+</div>
+
+<script>
+  window.__NAV_TOPICS__ = [{"num": "01", "title": "Number System Conversion", "href": "01-number-system-conversion.html"}, {"num": "02", "title": "Floating Point Data Representation", "href": "02-floating-point-representation.html"}, {"num": "03", "title": "CPU Architecture & Instruction Cycle", "href": "03-cpu-architecture-instruction-cycle.html"}, {"num": "04", "title": "Logic Gates & Memory Management", "href": "04-logic-gates-memory-management.html"}, {"num": "05", "title": "Storage Devices", "href": "05-storage-devices.html"}, {"num": "06", "title": "Display Technologies & GPU Architecture", "href": "06-display-technologies-gpu-architecture.html"}, {"num": "07", "title": "Emerging Technologies", "href": "07-emerging-technologies.html"}];
+  window.__CURRENT_HREF__ = "07-emerging-technologies.html";
+</script>
+<script>
+  // ===== TOC scroll-spy — highlights the active section link as you scroll =====
+  const sections = document.querySelectorAll('.section[id]');
+  const tocLinks = document.querySelectorAll('nav.toc a[href^="#"]');
+  const tocMap = {};
+  tocLinks.forEach(l => tocMap[l.getAttribute('href').slice(1)] = l);
+
+  const tocObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      if(entry.isIntersecting){
+        tocLinks.forEach(l => l.classList.remove('active'));
+        if(tocMap[id]) tocMap[id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(s => tocObserver.observe(s));
+
+  // ===== Bottom-of-page fallback — last section is short so the observer never fires for it =====
+  window.addEventListener('scroll', () => {
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    if(scrollBottom >= pageHeight - 60){
+      const lastLink = tocLinks[tocLinks.length - 1];
+      if(lastLink && !lastLink.classList.contains('active')){
+        tocLinks.forEach(l => l.classList.remove('active'));
+        lastLink.classList.add('active');
+      }
+    }
+  }, { passive: true });
+</script>
+<script>
+(function(){
+  const toc = document.getElementById('toc');
+  const menuBtn = document.getElementById('menuBtn');
+  const drawerClose = document.getElementById('drawerClose');
+  const backdrop = document.getElementById('tocBackdrop');
+  if(!toc || !menuBtn) return;
+
+  function openDrawer(){
+    toc.classList.add('drawer-open');
+    if(backdrop) backdrop.classList.add('show');
+    menuBtn.setAttribute('aria-expanded','true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    toc.classList.remove('drawer-open');
+    if(backdrop) backdrop.classList.remove('show');
+    menuBtn.setAttribute('aria-expanded','false');
+    document.body.style.overflow = '';
+  }
+
+  menuBtn.addEventListener('click', () => {
+    toc.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+  });
+  if(drawerClose) drawerClose.addEventListener('click', closeDrawer);
+  if(backdrop) backdrop.addEventListener('click', closeDrawer);
+  toc.querySelectorAll('a').forEach(l => l.addEventListener('click', closeDrawer));
+  window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeDrawer(); });
+  window.addEventListener('resize', () => { if(window.innerWidth > 900) closeDrawer(); });
+})();
+
+// ===== In-page "find" search (shared engine — drives both the sidebar/mobile-menu box and the hero box) =====
+(function(){
+  const mainEl = document.querySelector('main');
+  if(!mainEl) return;
+  let matches = [];
+  let activeIndex = -1;
+  const uiSets = [];
+
+  function clearHighlights(){
+    mainEl.querySelectorAll('mark.search-hit').forEach(mark => {
+      const parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+    matches = [];
+    activeIndex = -1;
+  }
+
+  function walkAndHighlight(query){
+    const lowerQuery = query.toLowerCase();
+    const walker = document.createTreeWalker(mainEl, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const tag = node.parentElement ? node.parentElement.tagName : '';
+        if(tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const textNodes = [];
+    let n;
+    while((n = walker.nextNode())) textNodes.push(n);
+
+    textNodes.forEach(node => {
+      const text = node.nodeValue;
+      const lowerText = text.toLowerCase();
+      if(!lowerText.includes(lowerQuery)) return;
+
+      const frag = document.createDocumentFragment();
+      let lastIndex = 0;
+      let idx = lowerText.indexOf(lowerQuery);
+
+      while(idx !== -1){
+        if(idx > lastIndex){
+          frag.appendChild(document.createTextNode(text.slice(lastIndex, idx)));
+        }
+        const mark = document.createElement('mark');
+        mark.className = 'search-hit';
+        mark.textContent = text.slice(idx, idx + query.length);
+        frag.appendChild(mark);
+        matches.push(mark);
+        lastIndex = idx + query.length;
+        idx = lowerText.indexOf(lowerQuery, lastIndex);
+      }
+      if(lastIndex < text.length){
+        frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  function updateAllUI(){
+    uiSets.forEach(ui => {
+      if(matches.length === 0){
+        ui.navBar.classList.remove('show');
+        ui.prevBtn.disabled = true;
+        ui.nextBtn.disabled = true;
+        ui.countLabel.textContent = '0 / 0';
+      } else {
+        ui.navBar.classList.add('show');
+        ui.prevBtn.disabled = false;
+        ui.nextBtn.disabled = false;
+        ui.countLabel.textContent = `${activeIndex + 1} / ${matches.length}`;
+      }
+    });
+  }
+
+  function syncValue(value){
+    uiSets.forEach(ui => {
+      if(ui.input.value !== value) ui.input.value = value;
+      ui.wrap.classList.toggle('has-query', value.trim().length > 0);
+    });
+  }
+
+  function goToMatch(index){
+    if(matches.length === 0) return;
+    if(activeIndex >= 0 && matches[activeIndex]) matches[activeIndex].classList.remove('active');
+    activeIndex = ((index % matches.length) + matches.length) % matches.length;
+    const mark = matches[activeIndex];
+    mark.classList.add('active');
+    mark.scrollIntoView({ behavior:'smooth', block:'center' });
+    updateAllUI();
+  }
+
+  function runSearch(rawQuery){
+    clearHighlights();
+    const query = rawQuery.trim();
+    syncValue(rawQuery);
+
+    if(query.length < 2){
+      updateAllUI();
+      return;
+    }
+
+    walkAndHighlight(query);
+
+    if(matches.length === 0){
+      updateAllUI();
+      return;
+    }
+
+    goToMatch(0);
+  }
+
+  function resetAll(){
+    syncValue('');
+    clearHighlights();
+    updateAllUI();
+  }
+
+  function bindUI(ui){
+    if(!ui.input || !ui.clearBtn || !ui.wrap || !ui.navBar || !ui.countLabel || !ui.prevBtn || !ui.nextBtn) return;
+    uiSets.push(ui);
+    let debounceTimer = null;
+
+    ui.input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const val = ui.input.value;
+      debounceTimer = setTimeout(() => runSearch(val), 200);
+    });
+
+    ui.input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(matches.length > 0) goToMatch(activeIndex + (e.shiftKey ? -1 : 1));
+      }
+      if(e.key === 'Escape'){
+        resetAll();
+        ui.input.blur();
+      }
+    });
+
+    ui.prevBtn.addEventListener('click', () => goToMatch(activeIndex - 1));
+    ui.nextBtn.addEventListener('click', () => goToMatch(activeIndex + 1));
+    ui.clearBtn.addEventListener('click', () => {
+      resetAll();
+      ui.input.focus();
+    });
+  }
+
+  bindUI({
+    input: document.getElementById('pageSearchInput'),
+    clearBtn: document.getElementById('pageSearchClear'),
+    wrap: document.getElementById('pageSearchInput') ? document.getElementById('pageSearchInput').closest('.toc-search') : null,
+    navBar: document.getElementById('searchNav'),
+    countLabel: document.getElementById('searchCount'),
+    prevBtn: document.getElementById('searchPrev'),
+    nextBtn: document.getElementById('searchNext'),
+  });
+
+  bindUI({
+    input: document.getElementById('heroFindInput'),
+    clearBtn: document.getElementById('heroFindClear'),
+    wrap: document.getElementById('heroFindWrap'),
+    navBar: document.getElementById('heroFindNav'),
+    countLabel: document.getElementById('heroSearchCount'),
+    prevBtn: document.getElementById('heroSearchPrev'),
+    nextBtn: document.getElementById('heroSearchNext'),
+  });
+
+  window.addEventListener('keydown', (e) => {
+    const focusedIsSearch = uiSets.some(ui => document.activeElement === ui.input);
+    const heroFindInput = document.getElementById('heroFindInput');
+    if(e.key === '/' && !focusedIsSearch && !e.metaKey && !e.ctrlKey && heroFindInput){
+      e.preventDefault();
+      heroFindInput.focus();
+    }
+  });
+})();
+
+// ===== Global topic search (jump to any other topic page from this page's hero) =====
+(function(){
+  const TOPICS = window.__NAV_TOPICS__ || [];
+  const CURRENT_HREF = window.__CURRENT_HREF__ || '';
+
+  const jumpInput = document.getElementById('topicJump');
+  const jumpWrap = document.getElementById('siteSearch');
+  const jumpClear = document.getElementById('jumpClear');
+  const dropdown = document.getElementById('jumpDropdown');
+  if(!jumpInput || !jumpWrap || !jumpClear || !dropdown) return;
+
+  let results = [];
+  let hlIndex = -1;
+
+  function render(query){
+    const q = query.trim().toLowerCase();
+    if(q === ''){
+      dropdown.classList.remove('show');
+      dropdown.innerHTML = '';
+      results = [];
+      hlIndex = -1;
+      return;
+    }
+
+    results = TOPICS.filter(t => t.title.toLowerCase().includes(q)).slice(0, 8);
+    hlIndex = -1;
+
+    if(results.length === 0){
+      dropdown.innerHTML = '<div class="s-empty">No topics match your search</div>';
+    } else {
+      dropdown.innerHTML = results.map((t, i) => {
+        const current = t.href === CURRENT_HREF ? ' (this page)' : '';
+        return `<a class="s-item" href="${t.href}" data-idx="${i}"><span class="s-num">${t.num}</span><span>${t.title}${current}</span></a>`;
+      }).join('');
+    }
+    dropdown.classList.add('show');
+  }
+
+  function setHighlight(i){
+    const items = dropdown.querySelectorAll('.s-item');
+    items.forEach(el => el.classList.remove('hl'));
+    if(i >= 0 && items[i]){
+      items[i].classList.add('hl');
+      items[i].scrollIntoView({ block:'nearest' });
+    }
+    hlIndex = i;
+  }
+
+  jumpInput.addEventListener('input', () => {
+    jumpWrap.classList.toggle('has-query', jumpInput.value.trim().length > 0);
+    render(jumpInput.value);
+  });
+
+  jumpInput.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(results.length) setHighlight((hlIndex + 1) % results.length);
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(results.length) setHighlight((hlIndex - 1 + results.length) % results.length);
+    } else if(e.key === 'Enter'){
+      if(hlIndex >= 0 && results[hlIndex]){
+        window.location.href = results[hlIndex].href;
+      } else if(results.length > 0){
+        window.location.href = results[0].href;
+      }
+    } else if(e.key === 'Escape'){
+      jumpInput.value = '';
+      jumpWrap.classList.remove('has-query');
+      render('');
+      jumpInput.blur();
+    }
+  });
+
+  jumpClear.addEventListener('click', () => {
+    jumpInput.value = '';
+    jumpWrap.classList.remove('has-query');
+    render('');
+    jumpInput.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if(!jumpWrap.contains(e.target)){
+      dropdown.classList.remove('show');
+    }
+  });
+})();
+
+// ===== Collapse / expand accordion (exam, glossary, comparison, vocab) =====
+(function(){
+  const GROUP_IDS = ['exam', 'glossary', 'comparison', 'sinhala-vocab', 'mcq-practice'];
+  const items = GROUP_IDS.map(id => ({
+    id,
+    section: document.getElementById(id),
+    body: document.getElementById(`${id}-body`),
+    toggle: document.getElementById(`${id}-toggle`),
+  })).filter(item => item.section && item.body && item.toggle);
+
+  function openItem(item, animate){
+    item.body.classList.add('open');
+    item.toggle.setAttribute('aria-expanded', 'true');
+    if(animate === false){
+      item.body.style.maxHeight = 'none';
+      return;
+    }
+    item.body.style.maxHeight = item.body.scrollHeight + 'px';
+    const onEnd = (e) => {
+      if(e.propertyName !== 'max-height') return;
+      item.body.style.maxHeight = 'none';
+      item.body.removeEventListener('transitionend', onEnd);
+    };
+    item.body.addEventListener('transitionend', onEnd);
+  }
+
+  function closeItem(item){
+    if(!item.body.classList.contains('open')) return;
+    const current = item.body.scrollHeight;
+    item.body.style.maxHeight = current + 'px';
+    item.body.offsetHeight;
+    requestAnimationFrame(() => {
+      item.body.style.maxHeight = '0px';
+    });
+    item.body.classList.remove('open');
+    item.toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleItem(id){
+    const clicked = items.find(i => i.id === id);
+    if(!clicked) return;
+    const isOpen = clicked.body.classList.contains('open');
+    items.forEach(i => { if(i !== clicked) closeItem(i); });
+    if(isOpen){
+      closeItem(clicked);
+    } else {
+      openItem(clicked, true);
+    }
+  }
+
+  items.forEach(item => {
+    item.toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleItem(item.id);
+    });
+    item.section.querySelector('.kicker').addEventListener('click', () => toggleItem(item.id));
+  });
+
+  window.__openAccordionSection = function(id){
+    const item = items.find(i => i.id === id);
+    if(!item) return;
+    if(!item.body.classList.contains('open')){
+      items.forEach(i => { if(i !== item) closeItem(i); });
+      openItem(item, true);
+    }
+  };
+
+  if(location.hash){
+    const targetId = location.hash.slice(1);
+    if(GROUP_IDS.includes(targetId)){
+      window.__openAccordionSection(targetId);
+      requestAnimationFrame(() => {
+        document.getElementById(targetId).scrollIntoView({ block:'start' });
+      });
+    }
+  }
+
+  document.querySelectorAll('nav.toc a[href^="#"]').forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    if(!GROUP_IDS.includes(id)) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.__openAccordionSection(id);
+      history.pushState(null, '', '#' + id);
+      requestAnimationFrame(() => {
+        document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+  });
+})();
+</script>
+
+<script>
+(function(){
+  const QUIZ_DATA = [
+    { q: "Who coined the term \"Artificial Intelligence\", and in what year?", options: ["Alan Turing, 1950", "John McCarthy, 1956", "Marvin Minsky, 1959", "Geoffrey Hinton, 1986"], correct: 1, note: "John McCarthy coined \"AI\" at the Dartmouth Conference in 1956." },
+    { q: "What directly caused the first \"AI Winter\"?", options: ["Lack of computing hardware alone", "Funding cuts following unmet expectations", "The invention of the internet", "Government bans on AI research"], correct: 1 , note: "Expectations set during the symbolic-AI boom weren't met, so funding for AI research was cut." },
+    { q: "Which development marked the shift from the 1st wave of AI to the 2nd wave?", options: ["Symbolic AI replacing statistical methods", "A paradigm shift from rule-based AI to statistical / machine learning methods", "The creation of the first expert system", "The release of ChatGPT"], correct: 1 , note: "The 2nd wave replaced hand-coded rules with statistical/ML methods that learn from data." },
+    { q: "Which of these was NOT mentioned as fueling the rise of the 2nd wave of AI?", options: ["Big data", "Powerful GPUs", "Backpropagation", "Quantum annealing"], correct: 3, note: "Big data, GPUs, and backpropagation drove the 2nd wave (ML/DL); quantum annealing is a separate emerging technology." },
+    { q: "What best characterizes \"AI Winter 2\"?", options: ["A decline caused by expert systems being hard to maintain and scale", "A funding boost from IBM Deep Blue's success", "The invention of GPUs", "The launch of the Dartmouth Conference"], correct: 0 , note: "Expert systems built in the 1980s were narrow and hard to maintain and scale, so funding and interest dropped again." },
+    { q: "In an expert system's architecture, what does the inference engine do?", options: ["Stores raw sensor data", "Reasons over the knowledge base to produce advice", "Displays the final answer directly to the expert", "Collects new knowledge from the internet automatically"], correct: 1 , note: "The inference engine sits between the knowledge base and the user interface, reasoning over stored knowledge to produce advice." },
+    { q: "How do modern expert systems differ from classic 1980s-style ones?", options: ["They no longer require a knowledge base", "They incorporate ML/AI to improve performance over time", "They replaced inference engines with GPUs", "They removed the user interface entirely"], correct: 1 , note: "Older expert systems were static rule sets; modern ones use ML/AI so they keep improving with experience." },
+    { q: "Expert systems provide the most value when:", options: ["Expertise is abundant and cheap", "Expertise is scarce or expensive", "No domain knowledge exists at all", "Data is completely unlabeled"], correct: 1 , note: "Expert systems exist to preserve and replicate expertise that would otherwise be scarce or costly to access." },
+    { q: "Which of the following is an NLG (Natural Language Generation) task, not an NLU task?", options: ["Sentiment analysis", "Chatbot intent detection", "Automatic text summarization", "Document classification"], correct: 2, note: "NLU = understanding language (sentiment, intent, classification). NLG = producing language (summarization, translation, predictive text)." },
+    { q: "In the human-vs-computer vision comparison, why does a computer's result appear as percentages (e.g. 84% Tomato, 15% Apple)?", options: ["Computers see color differently than humans", "Computer vision outputs probabilistic confidence rather than one certain answer", "Cameras cannot capture full color images", "The image file was corrupted"], correct: 1 , note: "Unlike a human's single confident answer, a computer vision model outputs a probability distribution across possible classes." },
+    { q: "In the traditional image processing pipeline, which stage comes immediately after Segmentation?", options: ["Image Acquisition", "Pre-processing", "Representation", "Classification"], correct: 2, note: "Order: Camera → Image Acquisition → Pre-processing → Segmentation → Representation → Classification." },
+    { q: "Which computer vision task involves classifying every individual pixel in an image?", options: ["Object Detection", "Image Segmentation", "Pose Estimation", "Face Recognition"], correct: 1 , note: "Image Segmentation classifies every pixel; Object Detection only locates and labels whole objects." },
+    { q: "Which is an example of Scene Understanding rather than simple Object Detection?", options: ["Detecting cars on the road", "A self-driving car making sense of a complex road environment as a whole", "Identifying a dog vs a cat", "Face ID unlocking a phone"], correct: 1 , note: "Scene Understanding covers making sense of the whole environment; Object Detection just finds individual objects like cars." },
+    { q: "Which AI area lets a robot understand a spoken command like \"pick up the red block\"?", options: ["Computer Vision", "Natural Language Processing", "Reinforcement Learning", "Cognitive modeling"], correct: 1 , note: "Understanding spoken or typed commands is the job of Natural Language Processing, not Computer Vision or Reinforcement Learning." },
+    { q: "Which robot type is best exemplified by a warehouse picking arm?", options: ["Humanoid", "Service Robot", "Industrial Robot", "Drone"], correct: 2 , note: "A fixed-location picking arm on a production/warehouse line is a classic Industrial Robot, not a mobile Service Robot or Drone." },
+    { q: "A robot that learns to walk by repeatedly trying and adjusting based on whether it falls or stays upright is using:", options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Natural Language Processing"], correct: 2 , note: "Learning through trial, error, and feedback (falling vs staying upright) is the definition of Reinforcement Learning." },
+    { q: "Which statement correctly ranks AI, ML, and DL by scope?", options: ["DL ⊃ ML ⊃ AI", "ML ⊃ AI ⊃ DL", "AI ⊃ ML ⊃ DL", "AI and ML are equal in scope; DL is unrelated"], correct: 2 , note: "AI is the broadest field, ML is a subset of AI, and DL is a subset of ML — AI ⊃ ML ⊃ DL." },
+    { q: "A model that groups customers into segments without being told the \"correct\" groups in advance is using:", options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Deep Learning exclusively"], correct: 1 , note: "Finding structure in data with no predefined labels is Unsupervised Learning, e.g. clustering." },
+    { q: "What is the key structural difference between Machine Learning and Deep Learning pipelines?", options: ["ML always uses GPUs, DL does not", "DL performs feature extraction and classification automatically within the network; classic ML often needs manual feature extraction", "DL cannot process images", "ML always needs more data than DL"], correct: 1 , note: "Deep Learning networks learn features and classify in one pipeline; classical ML usually needs a human to hand-engineer features first." },
+    { q: "Deep Learning is particularly well-suited for which of these tasks?", options: ["Simple spreadsheet calculations", "Natural language understanding, speech recognition, image classification", "Turning off computer peripherals", "Manually writing if-else rules"], correct: 1 , note: "DL's automatic feature learning makes it strong at complex perception tasks like vision, speech, and language understanding." },
+    { q: "Reinforcement Learning is best described as:", options: ["Learning from labeled examples", "Learning from unlabeled clusters", "Learning via rewards and punishments through trial and error", "Learning only from pre-trained models"], correct: 2 , note: "Reinforcement Learning agents improve by receiving rewards or penalties for their actions through trial and error." },
+    { q: "Put the four stages of \"How IoT Works\" in the correct order.", options: ["Connectivity → Sensors → User Interface → Data Processing", "Sensors → Connectivity/Gateway → Data Processing → User Interface", "Data Processing → Sensors → User Interface → Connectivity", "User Interface → Data Processing → Connectivity → Sensors"], correct: 1 , note: "Data flows in this order: Sensors → Connectivity/Gateway → Data Processing → User Interface." },
+    { q: "In the Warehouse IoT example, what connects sensor data to the ERP system and visual dashboard?", options: ["A cloud aggregator", "A quantum processor", "The user's mobile phone directly", "A physical courier"], correct: 0 , note: "The cloud aggregator collects data from inventory sensors before it reaches the ERP system and dashboard." },
+    { q: "Which of these is NOT one of the four \"How IoT Works\" stages?", options: ["Sensors", "Connectivity / Gateway", "Encryption Layer", "User Interface"], correct: 2 , note: "The four stages are Sensors, Connectivity/Gateway, Data Processing, and User Interface — \"Encryption Layer\" isn't one of them." },
+    { q: "What best distinguishes IoT-enabled smart homes from traditional home appliances?", options: ["They are always more expensive to manufacture", "They connect and exchange data with other devices/systems over a network", "They no longer require electricity", "They cannot be controlled remotely"], correct: 1 , note: "IoT devices are defined by their ability to connect and exchange data with other devices and systems over a network." },
+    { q: "What uniquely allows a qubit to represent more information than a classical bit at any instant?", options: ["Faster clock speed", "Superposition — the ability to be 0, 1, or both at once", "Larger physical size", "Higher voltage"], correct: 1 , note: "Superposition lets a qubit hold 0 and 1 simultaneously, unlike a classical bit which must be one or the other." },
+    { q: "Which quantum property means changing one qubit's state can instantly affect a linked qubit regardless of distance?", options: ["Superposition", "Entanglement", "Interference", "Decoherence"], correct: 1 , note: "Entanglement links qubits so that measuring one instantly determines the state of the other, no matter the distance between them." },
+    { q: "Why does quantum computing scale exponentially compared to classical computing's linear scaling?", options: ["Quantum processors run at higher clock speeds", "Each added qubit doubles the number of states processed simultaneously via superposition", "Quantum computers use more transistors", "Quantum computers don't need cooling"], correct: 1 , note: "Every extra qubit doubles the number of states that can be held in superposition, giving exponential rather than linear scaling." },
+    { q: "Google's Sycamore processor became famous for demonstrating:", options: ["The first working expert system", "Quantum supremacy — solving a problem impractical for classical computers", "The first commercial IoT gateway", "The first transformer-based language model"], correct: 1 , note: "Quantum supremacy means solving a task that would be practically impossible for a classical computer — Google claimed this with Sycamore in 2019." },
+    { q: "Which real-world quantum computing application relies on Shor's algorithm?", options: ["Drug discovery via molecule simulation", "Route optimization for logistics", "Breaking RSA encryption (cryptography)", "Fraud detection in finance"], correct: 2 , note: "Shor's algorithm efficiently factors large numbers, which is what underlies breaking RSA encryption." },
+    { q: "What was the primary computing paradigm during AI's \"1st wave\"?", options: ["Statistical learning from big data", "Rule-based / symbolic programming", "Deep neural networks", "Quantum algorithms"], correct: 1 , note: "The 1st wave relied on hand-coded rules and symbols (symbolic AI), not statistics or neural networks." },
+    { q: "Which event is widely credited with making the public \"large-scale users of AI\"?", options: ["IBM Deep Blue defeating Kasparov", "The release of ChatGPT in 2022", "The Dartmouth Conference", "Google's AlphaGo win"], correct: 1 , note: "ChatGPT's 2022 release is credited with bringing AI into mainstream, large-scale public use." },
+    { q: "AlexNet, GBMs winning Kaggle, and Transformers all appear during which period on the AI popularity timeline?", options: ["1st wave (rule-based)", "AI Winter 1", "2nd wave (Machine/Deep Learning)", "Pre-1956"], correct: 2 , note: "AlexNet, Kaggle-winning GBMs, and Transformers are all milestones of the 2nd wave (Machine/Deep Learning)." },
+    { q: "A financial expert system that recommends investment strategies applies expert systems to which domain?", options: ["Medical diagnosis", "Financial analysis", "Legal research", "Robotics control"], correct: 1 , note: "Evaluating market trends and recommending investment strategies is the lecture's Financial expert system example." },
+    { q: "What does the \"knowledge base\" component of an expert system contain?", options: ["Real-time sensor readings", "Encoded knowledge from a real domain expert", "The final displayed answer", "User login credentials"], correct: 1 , note: "The knowledge base stores the encoded expertise of a real domain specialist that the inference engine reasons over." },
+    { q: "Predictive text and automatic summarization are examples of:", options: ["Natural Language Understanding (NLU)", "Natural Language Generation (NLG)", "Computer Vision", "Reinforcement Learning"], correct: 1 , note: "Producing language — like predictive text and summaries — is Natural Language Generation (NLG), not understanding it (NLU)." },
+    { q: "Which of these is NOT listed as an application of NLP?", options: ["Sentiment analysis", "Email filtering", "Frame buffering", "Language translation"], correct: 2, note: "Frame buffering is a display/GPU concept, not an NLP application." },
+    { q: "Which computer vision application powers smartphone \"Face ID\"?", options: ["Pose Estimation", "Face Recognition", "Scene Understanding", "Object Detection"], correct: 1 , note: "Face ID identifies a specific individual from their face data, which is Face Recognition." },
+    { q: "In the traditional image processing pipeline, \"thresholding\" and \"edge detection\" typically occur during which stage?", options: ["Image Acquisition", "Segmentation", "Representation", "Classification"], correct: 1 , note: "Thresholding and edge detection are classic Segmentation techniques used to separate objects from background." },
+    { q: "Which of the following is NOT one of the five robot types listed in the lecture?", options: ["Industrial Robots", "Service Robots", "Cognitive Robots", "Humanoids"], correct: 2, note: "The five listed types are Industrial Robots, Service Robots, Humanoids, Autonomous Vehicles, and Drones." },
+    { q: "\"Affective computing\" in robotics primarily helps a robot:", options: ["Move faster", "Respond to or mimic human emotional expressions", "Store more memory", "Detect object edges"], correct: 1 , note: "Affective computing lets systems recognize and respond to human emotional expressions, aiding human-robot interaction." },
+    { q: "Which of AI, ML, and DL requires the largest datasets and highest computational power, per the lecture?", options: ["AI in general", "Machine Learning", "Deep Learning", "Expert Systems"], correct: 2 , note: "Deep Learning's many-layered neural networks need the most data and compute of the three." },
+    { q: "\"Task-driven, predicts the next value\" describes which type of Machine Learning?", options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Deep Learning"], correct: 0 , note: "Supervised Learning is trained on labeled data to predict outcomes — it's task-driven." },
+    { q: "AlphaGo is given as an example of which learning type?", options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Natural Language Generation"], correct: 2 , note: "AlphaGo learned to play through trial-and-error games, receiving rewards for winning — classic Reinforcement Learning." },
+    { q: "Which of these is listed as a real-world IoT example in the lecture?", options: ["Amazon Go checkout-free stores", "IBM Deep Blue", "AlexNet", "Shor's algorithm"], correct: 0 , note: "Amazon Go's checkout-free stores are the lecture's real-world IoT retail example." },
+    { q: "What is the main benefit of using IoT in warehouse inventory management, according to the lecture?", options: ["It eliminates the need for staff entirely", "It reduces time and money while improving inventory accuracy", "It replaces the need for an ERP system", "It increases storage temperature"], correct: 1 , note: "IoT sensors and cloud aggregation streamline inventory tracking, cutting time and cost while improving accuracy." },
+    { q: "Which company's system is specifically noted for quantum annealing used in optimization?", options: ["IBM", "Google", "D-Wave", "Microsoft"], correct: 2 , note: "D-Wave specializes in quantum annealing systems built specifically for optimization problems." },
+    { q: "Which cloud-based quantum computing services were mentioned in the lecture?", options: ["AWS Lambda and Azure Functions", "Amazon Braket and Microsoft Azure Quantum", "Google Drive and OneDrive", "IBM Watson and Google Assistant"], correct: 1 , note: "Amazon Braket and Microsoft Azure Quantum are the cloud-based quantum computing services named in the lecture." },
+    { q: "In finance, quantum computing is expected to help most with:", options: ["Payroll processing", "Risk modeling and fraud detection", "Printing invoices", "Manual bookkeeping"], correct: 1 , note: "Quantum computing's ability to model complex probability spaces suits risk modeling and fraud detection in finance." },
+    { q: "Which AI area is common to both robotics and computer vision applications, per the lecture?", options: ["Computer Vision itself — enabling robots to \"see\"", "Quantum annealing", "IEEE 754 floating point", "Southbridge chipset"], correct: 0 , note: "Computer Vision lets robots \"see\", which is also one of the core computer vision application areas." },
+
+    { q: "Which of the following best describes the overall shape of the \"History of AI\" popularity graph?", options: ["A steady straight line with no dips", "A series of rises and falls with waves and winters, then a sharp rise after 2017", "A single, immediate rise starting in 1956", "A constant decline since 1956"], correct: 1 , note: "The graph shows two winters (dips in popularity) followed by a steep rise after 2017 into the modern AI era." },
+    { q: "Besides rule-based programming, what was the initial focus of AI's \"1st wave\"?", options: ["Deep neural networks", "Mathematical computations and automated games", "Cloud computing", "Quantum cryptography"], correct: 1 , note: "Besides rule-based logic, the 1st wave targeted mathematical computation and automated games like chess." },
+    { q: "Which of the following is one of the five major AI application areas listed in the lecture?", options: ["Speech Recognition", "Quantum Annealing", "Frame Buffering", "Southbridge Chipset"], correct: 0 , note: "Speech Recognition is one of the five major AI application areas, alongside Expert Systems, NLP, Computer Vision, and Robotics." },
+    { q: "In an expert system, what does the \"non-expert user\" provide to begin the process?", options: ["The knowledge base", "A query", "The final advice", "The inference engine's code"], correct: 1 , note: "The non-expert user submits a query through the user interface to start the expert system's reasoning process." },
+    { q: "Which domain example uses an expert system to troubleshoot problems and design solutions, per the lecture's table?", options: ["Medical", "Financial", "Engineering", "Legal"], correct: 2 , note: "Engineering expert systems are used to troubleshoot problems and design solutions, per the lecture's domain table." },
+    { q: "Legal expert systems are described in the lecture as being used to:", options: ["Diagnose diseases", "Analyze cases and suggest strategies", "Detect network intrusions", "Train neural networks"], correct: 1 , note: "Legal expert systems analyze cases and suggest strategies, similar to a legal research assistant." },
+    { q: "What allows modern expert systems to improve their performance over time, unlike older rule-based systems?", options: ["More RAM", "Incorporating machine learning and AI", "Faster clock speeds", "Removing the knowledge base"], correct: 1 , note: "Incorporating ML/AI lets modern expert systems keep learning and improving, unlike static rule-based versions." },
+    { q: "Which of these is one of the \"7 Applications of Computer Vision\" listed in the lecture?", options: ["Augmented Reality", "Frame Buffering", "Southbridge", "Paging"], correct: 0 , note: "Augmented Reality is one of the 7 listed computer vision applications, alongside face recognition and self-driving cars." },
+    { q: "According to the lecture, a robot is fundamentally a machine that does which three things?", options: ["Charges, connects, computes", "Senses its environment, processes data, performs physical actions", "Stores, retrieves, deletes data", "Renders, displays, prints"], correct: 1 , note: "A robot's core definition: it senses its environment, processes that data, then performs physical actions." },
+    { q: "Which AI area allows a robot to improve its performance with experience, per the \"How AI Powers Robots\" table?", options: ["Computer Vision", "Natural Language Processing", "Machine Learning", "Cognitive modeling"], correct: 2 , note: "Machine Learning is the AI area credited with letting robots improve their performance through experience." },
+    { q: "How are Autonomous Vehicles and Drones classified in the lecture's robot types?", options: ["Each is its own type, alongside Industrial Robots, Service Robots, and Humanoids", "Both are types of Industrial Robots", "Both are types of Humanoids", "Neither is considered a robot type"], correct: 0 , note: "Autonomous Vehicles and Drones are each listed as their own robot type, separate from Industrial Robots, Service Robots, and Humanoids." },
+    { q: "\"Reasoning under uncertainty\" helps a robot to:", options: ["Charge its battery faster", "Process instructions and predict consequences of potential actions", "Increase its physical size", "Avoid using sensors entirely"], correct: 1 , note: "Reasoning under uncertainty lets a robot process instructions and predict what will happen from its possible actions." },
+    { q: "Why does Deep Learning require more computational power than traditional Machine Learning?", options: ["It uses simpler algorithms", "It uses many-layered neural networks that must be trained on large datasets", "It doesn't require any data", "It only runs on quantum computers"], correct: 1 , note: "Training many-layered neural networks on large datasets is what makes Deep Learning far more compute-hungry than classical ML." },
+    { q: "Unsupervised learning is described in the lecture as being:", options: ["Task-driven, predicting the next value", "Data-driven, identifying clusters", "Reward-driven, learning from mistakes", "Rule-driven, using symbolic logic"], correct: 1 , note: "Unsupervised Learning is data-driven — it finds clusters and patterns without being told the correct output in advance." },
+    { q: "According to the \"AI in a nutshell\" table, which scope description matches Machine Learning?", options: ["Broad", "Narrower", "Most specific", "Universal"], correct: 1 , note: "In the nutshell table, ML sits between AI (Broad) and DL (Most specific) as \"Narrower\"." },
+    { q: "Which key feature is associated with Deep Learning in the \"AI in a nutshell\" comparison table?", options: ["Simulates intelligent behavior", "Learns from data and improves automatically", "Uses multi-layered neural networks for feature extraction", "Requires no training data"], correct: 2 , note: "DL's key feature in the table is using multi-layered neural networks for automatic feature extraction." },
+    { q: "Which key feature is associated with AI (not ML or DL) in the \"AI in a nutshell\" table?", options: ["Simulates intelligent behavior", "Learns from data and improves automatically", "Uses multi-layered neural networks", "Only works with images"], correct: 0 , note: "AI's key feature in the table is simply simulating intelligent behavior — the broadest, least specific description." },
+    { q: "Self-driving cars are described in the Real-World AI section as combining which three elements?", options: ["NLP, Robotics, and Cloud Storage", "Computer Vision, Machine Learning, and real-time sensors", "Quantum Computing, IoT, and GPS", "Expert Systems, Speech Recognition, and Bluetooth"], correct: 1 , note: "Self-driving cars combine Computer Vision (to see), Machine Learning (to decide), and real-time sensors (to sense the environment)." },
+    { q: "Which examples are given for Large Language Models (LLMs) in the Real-World AI section?", options: ["IBM Watson and Deep Blue", "ChatGPT and Google Gemini", "AlphaGo and AlexNet", "Sycamore and D-Wave"], correct: 1 , note: "ChatGPT and Google Gemini are the LLM examples named in the Real-World AI section." },
+    { q: "In the healthcare example from the Real-World AI section, ML diagnostic tools are used to help detect:", options: ["Software bugs", "Diseases like cancer", "Network intrusions", "Hardware failures"], correct: 1 , note: "The lecture's healthcare example uses ML diagnostic tools to help detect diseases like cancer." },
+    { q: "What is the main takeaway of the \"AI in a nutshell\" section regarding real-world systems?", options: ["Real systems typically use only one AI technique at a time", "Real systems almost always combine several AI areas at once", "Real systems never use Deep Learning", "Real systems avoid using sensors"], correct: 1 , note: "The section's key takeaway is that real systems almost always combine several AI areas at once, not just one." },
+    { q: "Which of the following is NOT mentioned as a real-world implementation in the Real-World AI section?", options: ["Self-driving cars", "Large Language Models", "Healthcare diagnostics", "Cryptocurrency mining"], correct: 3 , note: "Cryptocurrency mining isn't mentioned — the section covers self-driving cars, LLMs, and healthcare diagnostics." },
+    { q: "Why do LLMs like ChatGPT and Gemini fall under the broader \"AI\" umbrella rather than being a separate field?", options: ["They are built using Deep Learning, which is itself a subset of AI", "They do not use any neural networks", "They only run on quantum computers", "They are unrelated to machine learning"], correct: 0 , note: "LLMs are built using Deep Learning, and Deep Learning is a subset of AI, so LLMs fall under the broader AI umbrella." },
+    { q: "In the \"AI in a nutshell\" table, what are the three column headers used to compare AI, ML, and DL?", options: ["Name, Price, Rating", "Concept, Scope, Key Feature", "Input, Process, Output", "Type, Cost, Accuracy"], correct: 1 , note: "The table compares AI, ML, and DL using the headers Concept, Scope, and Key Feature." },
+    { q: "Which of the following is listed as a component of \"How IoT Works\"?", options: ["Southbridge", "Gateway", "ALU", "Program Counter"], correct: 1 , note: "The Gateway is the connectivity component that sends sensor data on to the cloud/server in the IoT diagram." },
+    { q: "According to the lecture, IoT devices primarily use sensors to:", options: ["Increase screen resolution", "Collect and send data", "Store data permanently on the device only", "Encrypt Bluetooth signals"], correct: 1 , note: "IoT sensors exist to collect data from the environment and send it onward for processing." },
+    { q: "Which of the following is an example of an IoT-enabled environment mentioned in the lecture?", options: ["Smart cities", "Von Neumann architecture", "CISC processors", "Quantum annealing"], correct: 0 , note: "Smart cities are one of the IoT-enabled environments shown in the lecture's diagram, alongside smart homes and factories." },
+    { q: "In the IoT diagram, which of these is shown as an \"IoT enabled\" category?", options: ["Factories", "Registers", "Accumulators", "L3 Cache"], correct: 0 , note: "The IoT diagram shows Factories as one of the \"IoT enabled\" categories, alongside shops, homes, and cities." },
+    { q: "What does IBM's Q System One primarily represent?", options: ["A classical supercomputer", "IBM's quantum computing hardware system", "A cloud storage platform", "A neural network architecture"], correct: 1 , note: "IBM Q System One is IBM's dedicated quantum computing hardware system." },
+    { q: "Which of the following is NOT one of the three key quantum properties discussed in the lecture (\"SEI\")?", options: ["Superposition", "Entanglement", "Interference", "Amplification"], correct: 3 , note: "The three quantum properties covered are Superposition, Entanglement, and Interference (\"SEI\") — Amplification isn't one of them." },
+  ];
+
+  const container = document.getElementById('mcqContainer');
+  const scoreEl = document.getElementById('mcqScore');
+  const resetBtn = document.getElementById('mcqReset');
+  if(!container || !scoreEl) return;
+
+  const LETTERS = ['A','B','C','D','E','F'];
+  let score = 0;
+  const answered = new Set();
+
+  function updateScore(){
+    scoreEl.textContent = `Score: ${score} / ${QUIZ_DATA.length}`;
+  }
+
+  function render(){
+    container.innerHTML = '';
+    QUIZ_DATA.forEach((item, qIndex) => {
+      const card = document.createElement('div');
+      card.className = 'mcq-card';
+
+      const qEl = document.createElement('p');
+      qEl.className = 'mcq-q';
+      qEl.innerHTML = `<span class="mcq-num">${qIndex + 1}.</span>${item.q}`;
+      card.appendChild(qEl);
+
+      const optsWrap = document.createElement('div');
+      optsWrap.className = 'mcq-options';
+
+      const noteEl = document.createElement('div');
+      noteEl.className = 'mcq-note';
+      if(item.note) noteEl.innerHTML = `<b>Why:</b> ${item.note}`;
+
+      item.options.forEach((optText, optIndex) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mcq-opt';
+        btn.innerHTML = `<span class="mcq-letter">${LETTERS[optIndex]}</span><span>${optText}</span>`;
+        btn.addEventListener('click', () => {
+          if(answered.has(qIndex)) return;
+          answered.add(qIndex);
+          const isCorrect = optIndex === item.correct;
+          btn.classList.add(isCorrect ? 'correct' : 'wrong');
+          if(isCorrect) score++;
+          optsWrap.querySelectorAll('.mcq-opt').forEach((b, i) => {
+            b.classList.add('locked');
+            if(i === item.correct) b.classList.add('correct');
+          });
+          if(item.note) noteEl.classList.add('show');
+          updateScore();
+        });
+        optsWrap.appendChild(btn);
+      });
+
+      card.appendChild(optsWrap);
+      if(item.note) card.appendChild(noteEl);
+      container.appendChild(card);
+    });
+  }
+
+  if(resetBtn){
+    resetBtn.addEventListener('click', () => {
+      score = 0;
+      answered.clear();
+      updateScore();
+      render();
+    });
+  }
+
+  render();
+  updateScore();
+})();
+</script>
+
+<script>
+  document.querySelectorAll('.si-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById(btn.getAttribute('data-target'));
+      if(!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+</script>
+<script>
+(function(){
+  const imgs = Array.from(document.querySelectorAll('.figure img'));
+  const overlay = document.createElement('div');
+  overlay.className = 'lb-overlay';
+  overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true'); overlay.setAttribute('aria-label','Enlarged image');
+  overlay.innerHTML = '<button type="button" class="lb-close" aria-label="Close image">&times;</button>' +
+    '<button type="button" class="lb-nav lb-prev" aria-label="Previous image">&#8249;</button>' +
+    '<button type="button" class="lb-nav lb-next" aria-label="Next image">&#8250;</button>' +
+    '<img alt=""><div class="lb-caption"></div><div class="lb-count"></div>';
+  document.body.appendChild(overlay);
+  const bigImg = overlay.querySelector('img');
+  const cap = overlay.querySelector('.lb-caption');
+  const count = overlay.querySelector('.lb-count');
+  let idx = 0;
+  function show(i){
+    idx = (i + imgs.length) % imgs.length;
+    const img = imgs[idx];
+    bigImg.src = img.currentSrc || img.src;
+    bigImg.alt = img.alt || '';
+    const fc = img.closest('.figure') && img.closest('.figure').querySelector('figcaption');
+    cap.textContent = fc ? fc.textContent : (img.alt || '');
+    count.textContent = (idx + 1) + ' / ' + imgs.length;
+  }
+  function open(i){
+    show(i);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  const isOpen = () => overlay.classList.contains('open');
+  imgs.forEach((img, i) => img.addEventListener('click', () => open(i)));
+  overlay.addEventListener('click', close);
+  overlay.querySelector('.lb-prev').addEventListener('click', e => { e.stopPropagation(); show(idx - 1); });
+  overlay.querySelector('.lb-next').addEventListener('click', e => { e.stopPropagation(); show(idx + 1); });
+  overlay.querySelector('.lb-close').addEventListener('click', e => { e.stopPropagation(); close(); });
+  window.addEventListener('keydown', e => {
+    if(!isOpen()) return;
+    if(e.key === 'Escape') close();
+    else if(e.key === 'ArrowLeft') show(idx - 1);
+    else if(e.key === 'ArrowRight') show(idx + 1);
+  });
+  // Swipe left / right on touch screens
+  let sx = null, sy = null;
+  overlay.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  overlay.addEventListener('touchend', e => {
+    if(sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    sx = sy = null;
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      e.preventDefault();
+      show(dx < 0 ? idx + 1 : idx - 1);
+      overlay._swiped = true; setTimeout(() => overlay._swiped = false, 400);
+    }
+  });
+  // ignore the synthetic click that follows a swipe so it doesn't close the viewer
+  overlay.addEventListener('click', e => { if(overlay._swiped){ e.stopImmediatePropagation(); } }, true);
+})();
+</script>
+
+<button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 15.5l6-6 6 6" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+
+<script>
+// ===== Back-to-top button =====
+(function(){
+  const btn = document.getElementById('toTop');
+  if(!btn) return;
+  let ticking = false;
+  function update(){
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    btn.classList.toggle('show', y > 250);
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => { if(!ticking){ ticking = true; requestAnimationFrame(update); } }, { passive:true });
+  window.addEventListener('resize', update);
+  btn.addEventListener('click', () => {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top:0, behavior: reduce ? 'auto' : 'smooth' });
+    btn.blur();
+  });
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEng Software Engineering / BSc Cyber Security — Study Notes Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#8ab4f8; --red:#f28b82; --yellow:#fdd663; --green:#81c995; --purple:#c58af9;
+    --ink:#e8eaed; --sub:#9aa0a6; --paper:#232427; --bg:#131417; --line:#3c4043;
+    --card-shadow: 0 1px 2px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{ margin:0; font-family:'Roboto', Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; overflow-x:hidden; }
+  h1,h2,h3,.g-title{ font-family:'Google Sans','Roboto',Arial,sans-serif; }
+
+  .hero{ background:linear-gradient(120deg,#1a73e8 0%, #7B61FF 45%, #EA4335 100%); color:#fff; padding:56px 24px 40px; position:relative; overflow:hidden; }
+  .hero::after{ content:""; position:absolute; right:-60px; top:-60px; width:280px;height:280px;border-radius:50%; background:rgba(255,255,255,.08); }
+  .hero::before{ content:""; position:absolute; left:8%; bottom:-120px; width:220px;height:220px;border-radius:50%; background:rgba(255,255,255,.07); }
+  .hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow{ display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; background:rgba(255,255,255,.18); padding:6px 12px; border-radius:20px; margin-bottom:18px; font-weight:500; }
+  .hero h1{font-size:32px; margin:0 0 12px; font-weight:700; line-height: 1.25;}
+  .hero p{font-size:16px; max-width:760px; opacity:.95; margin:0;}
+  .progress-note{ margin-top:22px; font-size:13.5px; opacity:.9; display:flex; align-items:center; gap:8px; }
+  .progress-note .dot{width:6px;height:6px;border-radius:50%;background:#fff;flex:none;}
+
+  .site-search{ margin-top:24px; max-width:440px; position:relative; }
+  .site-search input{
+    width:100%; padding:13px 16px 13px 44px; border-radius:14px;
+    border:1px solid rgba(255,255,255,.32); background:rgba(255,255,255,.14);
+    color:#fff; font-size:14.5px; backdrop-filter:blur(6px); box-sizing:border-box;
+  }
+  .site-search input::placeholder{ color:rgba(255,255,255,.78); }
+  .site-search input:focus{ outline:none; background:rgba(255,255,255,.22); border-color:#fff; }
+  .site-search .s-icon{
+    position:absolute; left:15px; top:50%; transform:translateY(-50%);
+    font-size:14px; opacity:.85; pointer-events:none;
+  }
+  .site-search .s-clear{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    width:26px; height:26px; border-radius:8px; border:none; background:rgba(255,255,255,.16);
+    color:#fff; font-size:13px; cursor:pointer; display:none; align-items:center; justify-content:center;
+  }
+  .site-search.has-query .s-clear{ display:flex; }
+  .site-search .s-count{ margin-top:8px; font-size:12.5px; opacity:.85; }
+
+  .no-results{
+    display:none; text-align:center; padding:40px 20px; color:var(--sub);
+    background:var(--paper); border-radius:18px; box-shadow:var(--card-shadow); margin-bottom:22px;
+  }
+  .no-results.show{ display:block; }
+  .no-results .nr-title{ font-family:'Google Sans',sans-serif; font-weight:700; color:var(--ink); font-size:16px; margin-bottom:6px; }
+
+  .group{ background:var(--paper); border-radius:18px; box-shadow:var(--card-shadow); padding:26px 30px; margin-bottom:22px; scroll-margin-top:20px; position: sticky;}
+  .group-head{ display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .group-head .num-badge{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; font-family:'Google Sans',sans-serif; flex:none; line-height:1; }
+  .group h2{ font-size:21px; margin:0; font-weight:700; line-height:1.3; }
+  .group .g-range{ font-size:12px; color:var(--sub); margin-left:auto; white-space:nowrap; }
+  .group .g-sub{ width:100%; font-size:13px; color:var(--sub); margin-top:-8px; }
+
+  /* ===== Module cards ===== */
+  .module-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .module-card{
+    background:#1a1b1e; border:1px solid var(--line); border-radius:14px; padding:18px 20px;
+    transition:border-color .15s ease, transform .1s ease;
+  }
+  .module-card:hover{ border-color:#5f6368; }
+  .module-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .module-card h3{ font-size:15px; margin:0; font-weight:700; color:#fff; line-height:1.4; }
+  .module-title-link{ color:#fff; text-decoration:none; }
+  .module-title-link:hover{ color:var(--blue); text-decoration:underline; }
+  .module-card:has(.module-title-link){ border-color:#2a3b52; }
+  .module-card:has(.module-title-link):hover{ border-color:var(--blue); }
+  .has-notes-tag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:#a8c7fa; background:#1c2b3e; border:1px solid #2a3b52; padding:3px 9px; border-radius:20px; margin-top:8px; text-decoration:none; }
+  .has-notes-tag:hover{ background:#22364d; text-decoration:underline; }
+  .descriptor-link{
+    flex:none; display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:600;
+    color:var(--blue); text-decoration:none; background:#1c2b3e; border:1px solid #2a3b52;
+    padding:5px 10px; border-radius:20px; white-space:nowrap;
+  }
+  .descriptor-link:hover{ background:#22364d; text-decoration:underline; }
+  .assess-label{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:700; margin:12px 0 8px; }
+  .assess-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+  .assess-list li{ display:flex; align-items:center; gap:10px; font-size:13px; color:#c7cbd1; }
+  .assess-weight{
+    flex:none; font-family:'Roboto Mono',monospace; font-size:11.5px; font-weight:700; color:#fff;
+    background:#2c2d30; border-radius:6px; padding:3px 8px; min-width:44px; text-align:center;
+  }
+
+  footer{ text-align:center; color:var(--sub); font-size:12.5px; padding:20px 0 50px; }
+  .back-top{ display:inline-block; margin-top:10px; font-size:12px; color:var(--blue); text-decoration:none; }
+  .back-top:hover{ text-decoration:underline; opacity:.8; }
+
+  @media (max-width:900px){
+    .hero{padding:44px 20px 70px;} .hero h1{font-size:27px;} .hero p{font-size:15px;}
+    .group{padding:20px 18px;}
+    .module-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .hero{padding:36px 18px 60px;} .hero h1{font-size:22px;} .hero p{font-size:14px;}
+    .eyebrow{font-size:10.5px; padding:5px 10px;}
+    .progress-note{font-size:12px;}
+    .group{padding:16px 14px; border-radius:14px;}
+    .group-head{flex-wrap:wrap;}
+    .group h2{font-size:16.5px;}
+    .group .g-range{ margin-left:0; width:100%; }
+    .module-head{ flex-direction:column; }
+    .descriptor-link{ align-self:flex-start; }
+  }
+
+  /* ===== Mobile bar ===== */
+  .mobile-bar{ display:none; position:sticky; top:0; z-index:40; align-items:center; justify-content:space-between; background:var(--paper); border-bottom:1px solid var(--line); padding:12px 16px; }
+  .mobile-bar .m-title{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .menu-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--paper); flex:none; cursor:pointer; padding:0; }
+  .menu-btn span, .menu-btn span::before, .menu-btn span::after{ content:""; display:block; width:18px; height:2px; background:var(--ink); position:relative; transition:transform .2s ease, opacity .2s ease; }
+  .menu-btn span::before{ position:absolute; top:-6px; } .menu-btn span::after{ position:absolute; top:6px; }
+  .menu-btn[aria-expanded="true"] span{ background:transparent; }
+  .menu-btn[aria-expanded="true"] span::before{ top:0; transform:rotate(45deg); background:var(--ink); }
+  .menu-btn[aria-expanded="true"] span::after{ top:0; transform:rotate(-45deg); background:var(--ink); }
+  .toc-backdrop{ display:none; position:fixed; inset:0; background:rgba(32,33,36,.45); z-index:45; }
+  .toc-backdrop.show{ display:block; }
+  .drawer-close{ display:none; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--paper); align-items:center; justify-content:center; cursor:pointer; font-size:16px; line-height:1; color:var(--sub); flex:none; }
+  nav.toc.drawer-open .drawer-close{ display:flex; }
+  @keyframes slideIn{ from{ transform:translateX(-100%); opacity:.4; } to{ transform:translateX(0); opacity:1; } }
+
+  /* ===== Layout: sidebar + main ===== */
+  .idx-layout{ max-width:1180px; margin:-8px auto 0; padding:0 24px; display:grid; grid-template-columns:250px 1fr; gap:32px; align-items:start; }
+  .idx-layout main{ min-width:0; }
+
+  /* ===== Sidebar nav.toc ===== */
+  nav.toc{ background:var(--paper); border-radius:16px; box-shadow:var(--card-shadow); padding:18px 10px; position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; }
+  nav.toc .toc-head{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); padding:6px 14px 10px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+  nav.toc a{ display:block; padding:9px 14px; border-radius:10px; color:var(--ink); text-decoration:none; font-size:13.5px; border-left:3px solid transparent; }
+  nav.toc a:hover{ background:#2c2d30; }
+  nav.toc a.active{ background:#2a3a55; color:#a8c7fa; border-left-color:var(--blue); font-weight:500; }
+
+  /* ===== Responsive ===== */
+  @media (max-width:900px){
+    .idx-layout{ grid-template-columns:1fr; margin-top:20px; padding:0 16px; }
+    .mobile-bar{ display:flex; }
+    nav.toc{ display:none; }
+    nav.toc.drawer-open{ display:block; position:fixed; top:0; left:0; bottom:0; z-index:50; width:82%; max-width:320px; max-height:none; border-radius:0; box-shadow:2px 0 24px rgba(0,0,0,.18); padding:18px 8px 24px; animation:slideIn .22s ease; overflow:auto; }
+    nav.toc.drawer-open .toc-head{ padding:8px 16px 14px; }
+    nav.toc a{ padding:12px 16px; font-size:14.5px; }
+  }
+  @media (max-width:400px){ nav.toc.drawer-open{ width:88%; } }
+
+/* ===== Back-to-top button (desktop + mobile) ===== */
+.to-top{ position:fixed; right:22px; bottom:22px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); z-index:35; display:flex; align-items:center; justify-content:center; width:48px; height:48px; padding:0; border-radius:50%; border:1px solid #5f6368; background:#000; color:#fff; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.6); opacity:0; visibility:hidden; transform:translateY(14px); transition:opacity .25s ease, transform .25s ease, visibility .25s, background .15s ease; -webkit-tap-highlight-color:transparent; }
+.to-top.show{ opacity:1; visibility:visible; transform:none; }
+.to-top:hover{ background:#2c2d30; }
+.to-top:active{ transform:scale(.96); }
+@media (max-width:900px){ .to-top{ right:14px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); } }
+
+/* ===== Keyboard focus (visible only for keyboard users) ===== */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+button:focus:not(:focus-visible), a:focus:not(:focus-visible){ outline:none; }
+.toc-search input:focus{ border-color:var(--blue); }
+
+/* ===== Mobile: sticky top bar must not cover headings after anchor jumps ===== */
+@media (max-width:900px){ .section, .group{ scroll-margin-top:76px; } }
+
+/* ===== Respect reduced-motion setting ===== */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="mobile-bar" id="mobileBar">
+  <span class="m-title">Study Notes — Main Index</span>
+  <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="toc" aria-label="Open topics menu">
+    <span></span>
+  </button>
+</div>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">BEng (Hons) Software Engineering / BSc (Hons) Cyber Security</span>
+    <h1>Study Notes — Main Index</h1>
+    <p>Compulsory modules are the same for 1st Year across both degrees, then the pathways diverge from Year 2 onward. This index links every module to its official module descriptor and lists how each one is assessed, so you always know what's coming and how much it's worth.</p>
+    <div class="site-search" id="siteSearch">
+      <span class="s-icon">🔍</span>
+      <input type="text" id="topicSearch" placeholder="Search modules… e.g. Cloud, Networks, Dissertation" autocomplete="off">
+      <button type="button" class="s-clear" id="searchClear" aria-label="Clear search">✕</button>
+    </div>
+  </div>
+</div>
+
+<div class="idx-layout">
+  <nav class="toc" id="toc">
+    <div class="toc-head">On this page <button type="button" class="drawer-close" id="drawerClose" aria-label="Close menu">✕</button></div>
+    <a href="#group-1">1. 🧭 Year 1 — Compulsory</a>
+    <a href="#group-2">2. ⚙️ Year 2 — Software Engineering</a>
+    <a href="#group-3">3. 🎓 Year 3 — Software Engineering</a>
+  </nav>
+  <main>
+  <div class="wrap-idx" style="padding-bottom:60px;">
+  <div class="no-results" id="noResults">
+    <div class="nr-title">No modules match your search</div>
+    <div>Try a different keyword, or clear the search to see all 17 modules.</div>
+  </div>
+
+  <div class="group" id="group-1">
+    <div class="group-head">
+      <div class="num-badge" style="background:#4285F4">1</div>
+      <h2>🧭 Year 1 — Compulsory</h2>
+      <span class="g-range">6 modules</span>
+      <span class="g-sub">Shared by BEng Software Engineering &amp; BSc Cyber Security — Software Engineering Degree Modules</span>
+    </div>
+    <div class="module-grid">
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Algorithms and Programming Concepts</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40048.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> Class-test — 45 mins</li>
+          <li><span class="assess-weight">50%</span> Class-test — 45 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3><a class="module-title-link" href="comp40050-index.html">Computer Architecture and Operating Systems Design</a></h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40050.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <a class="has-notes-tag" href="comp40050-index.html">📘 Study Notes available →</a>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> Multichoice online class test — 1 hour</li>
+          <li><span class="assess-weight">50%</span> Practical skills test — 1 hour</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Networks and Communications</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40052.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> In-class written test — 1 hour</li>
+          <li><span class="assess-weight">50%</span> Practical class test — 1 hour</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Cloud and Cyber</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40049.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">100%</span> Group Assignment — 2000 words</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Software Development</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40053.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">30%</span> Practical Assessment — 10 min demonstration</li>
+          <li><span class="assess-weight">10%</span> Written Report — 1000 words</li>
+          <li><span class="assess-weight">60%</span> Practical Assessment — 15 min demonstration</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Data and Distributed Systems</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP40051.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> Written Report — 1500 words</li>
+          <li><span class="assess-weight">50%</span> Written Report — 1500 words</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="group" id="group-2">
+    <div class="group-head">
+      <div class="num-badge" style="background:#34A853">2</div>
+      <h2>⚙️ Year 2 — Software Engineering</h2>
+      <span class="g-range">6 modules</span>
+    </div>
+    <div class="module-grid">
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Advanced Programming</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50058.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">100%</span> Practical Assessment — 15 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Cloud Infrastructure and Design</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50061.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">80%</span> Case Study — 3000 words</li>
+          <li><span class="assess-weight">20%</span> Presentation — 20 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Interface Design and User Experience</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50070.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> Presentation — 15 mins</li>
+          <li><span class="assess-weight">50%</span> Demonstration — 15 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Mobile Application Development</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50072.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">30%</span> Written Report — 1200 words</li>
+          <li><span class="assess-weight">70%</span> Demonstration — 15 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Professional Practice and Project Management</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50074.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">60%</span> Group Report — 1500 words</li>
+          <li><span class="assess-weight">40%</span> Individual Report — 2000 words</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Web Development</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP50075.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">100%</span> Presentation — 30 mins</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="group" id="group-3">
+    <div class="group-head">
+      <div class="num-badge" style="background:#EA4335">3</div>
+      <h2>🎓 Year 3 — Software Engineering</h2>
+      <span class="g-range">5 modules</span>
+    </div>
+    <div class="module-grid">
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Developing with Frameworks</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP60062.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">60%</span> Demonstration — 15 mins</li>
+          <li><span class="assess-weight">40%</span> Written Report — 1500 words</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Dissertation</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP60066.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">20%</span> Project Proposal — 30 min presentation</li>
+          <li><span class="assess-weight">60%</span> Dissertation — 10,000 words</li>
+          <li><span class="assess-weight">20%</span> Presentation and Viva — 50 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Software Development and Artificial Intelligence</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP60075.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">25%</span> Written Report — 1200 words</li>
+          <li><span class="assess-weight">75%</span> Presentation — 20 mins</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Clean Coding</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP60058.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">50%</span> Practical Assessment — 20 min demonstration</li>
+          <li><span class="assess-weight">50%</span> Written Report — 1500 words</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <div class="module-head">
+          <h3>Cloud Based Software Development</h3>
+          <a class="descriptor-link" href="https://evision.staffs.ac.uk/module_descriptors/COMP60060.html" target="_blank" rel="noopener">Descriptor ↗</a>
+        </div>
+        <div class="assess-label">Assessment</div>
+        <ul class="assess-list">
+          <li><span class="assess-weight">40%</span> Written Report — 1500 words</li>
+          <li><span class="assess-weight">60%</span> Presentation — 20 mins</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  </div><!-- /.wrap-idx -->
+  </main>
+</div><!-- /.idx-layout -->
+
+<footer>BEng (Hons) Software Engineering / BSc (Hons) Cyber Security — Study Notes<br>17 modules across 3 years
+  <br><a class="back-top" href="#top">Back to top ↑</a>
+</footer>
+
+<script>
+
+  // ===== TOC scroll-spy =====
+  const idxSections = document.querySelectorAll('.group[id]');
+  const idxTocLinks = document.querySelectorAll('nav.toc a[href^="#"]');
+  const idxTocMap = {};
+  idxTocLinks.forEach(l => idxTocMap[l.getAttribute('href').slice(1)] = l);
+
+  const idxObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.getAttribute('id');
+        idxTocLinks.forEach(l => l.classList.remove('active'));
+        if(idxTocMap[id]) idxTocMap[id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  idxSections.forEach(s => idxObserver.observe(s));
+
+  window.addEventListener('scroll', () => {
+    const scrollBottom = window.scrollY + window.innerHeight;
+    if(scrollBottom >= document.documentElement.scrollHeight - 60){
+      const lastLink = idxTocLinks[idxTocLinks.length - 1];
+      if(lastLink && !lastLink.classList.contains('active')){
+        idxTocLinks.forEach(l => l.classList.remove('active'));
+        lastLink.classList.add('active');
+      }
+    }
+  }, { passive: true });
+
+  // ===== Mobile drawer =====
+  (function(){
+    const toc = document.getElementById('toc');
+    const menuBtn = document.getElementById('menuBtn');
+    const drawerClose = document.getElementById('drawerClose');
+    const backdrop = document.getElementById('tocBackdrop');
+    if(!toc || !menuBtn) return;
+    function openDrawer(){ toc.classList.add('drawer-open'); backdrop.classList.add('show'); menuBtn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+    function closeDrawer(){ toc.classList.remove('drawer-open'); backdrop.classList.remove('show'); menuBtn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+    menuBtn.addEventListener('click', () => toc.classList.contains('drawer-open') ? closeDrawer() : openDrawer());
+    if(drawerClose) drawerClose.addEventListener('click', closeDrawer);
+    if(backdrop) backdrop.addEventListener('click', closeDrawer);
+    toc.querySelectorAll('a').forEach(l => l.addEventListener('click', closeDrawer));
+    window.addEventListener('keydown', (e) => { if(e.key==='Escape') closeDrawer(); });
+    window.addEventListener('resize', () => { if(window.innerWidth > 900) closeDrawer(); });
+  })();
+
+  // ===== Search / filter (module cards) =====
+  const searchInput = document.getElementById('topicSearch');
+  const searchWrap = document.getElementById('siteSearch');
+  const clearBtn = document.getElementById('searchClear');
+  const noResults = document.getElementById('noResults');
+  const groups = Array.from(document.querySelectorAll('.group'));
+
+  function runFilter(){
+    const q = searchInput.value.trim().toLowerCase();
+    searchWrap.classList.toggle('has-query', q.length > 0);
+
+    let totalVisible = 0;
+    groups.forEach(group => {
+      const cards = Array.from(group.querySelectorAll('.module-card'));
+      let groupVisible = 0;
+      cards.forEach(card => {
+        const label = card.textContent.toLowerCase();
+        const match = q === '' || label.includes(q);
+        card.style.display = match ? '' : 'none';
+        if(match) groupVisible++;
+      });
+      group.style.display = groupVisible > 0 ? '' : 'none';
+      totalVisible += groupVisible;
+    });
+
+    noResults.classList.toggle('show', totalVisible === 0);
+  }
+
+  searchInput.addEventListener('input', runFilter);
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    runFilter();
+    searchInput.focus();
+  });
+  window.addEventListener('keydown', (e) => {
+    if(e.key === '/' && document.activeElement !== searchInput){
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = '';
+      runFilter();
+      searchInput.blur();
+    }
+  });
+</script>
+
+
+<button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 15.5l6-6 6 6" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+
+<script>
+// ===== Back-to-top button =====
+(function(){
+  const btn = document.getElementById('toTop');
+  if(!btn) return;
+  let ticking = false;
+  function update(){
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    btn.classList.toggle('show', y > 250);
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => { if(!ticking){ ticking = true; requestAnimationFrame(update); } }, { passive:true });
+  window.addEventListener('resize', update);
+  btn.addEventListener('click', () => {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top:0, behavior: reduce ? 'auto' : 'smooth' });
+    btn.blur();
+  });
+  update();
+})();
+</script>
+</body>
+</html>
