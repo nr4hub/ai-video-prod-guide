@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 — Growth Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#8ab4f8; --red:#f28b82; --yellow:#fdd663; --green:#81c995; --purple:#c58af9;
+  --ink:#e8eaed; --sub:#9aa0a6; --paper:#232427; --bg:#131417; --line:#3c4043;
+  --card-shadow: 0 1px 2px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{ margin:0; font-family:'Roboto', Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.65; overflow-x:hidden; }
+h1,h2,h3,.slide-title{ font-family:'Google Sans','Roboto',Arial,sans-serif; }
+a{ color:inherit; }
+.si{ font-family:'Noto Sans Sinhala','Roboto',sans-serif; }
+
+.mobile-bar{ display:none; position:sticky; top:0; z-index:40; align-items:center; justify-content:space-between; background:var(--paper); border-bottom:1px solid var(--line); padding:12px 16px; }
+.mobile-bar .m-title{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.menu-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--paper); flex:none; cursor:pointer; padding:0; }
+.menu-btn span, .menu-btn span::before, .menu-btn span::after{ content:""; display:block; width:18px; height:2px; background:var(--ink); position:relative; transition:transform .2s ease, opacity .2s ease; }
+.menu-btn span::before{ position:absolute; top:-6px; } .menu-btn span::after{ position:absolute; top:6px; }
+.menu-btn[aria-expanded="true"] span{ background:transparent; }
+.menu-btn[aria-expanded="true"] span::before{ top:0; transform:rotate(45deg); background:var(--ink); }
+.menu-btn[aria-expanded="true"] span::after{ top:0; transform:rotate(-45deg); background:var(--ink); }
+.toc-backdrop{ display:none; position:fixed; inset:0; background:rgba(32,33,36,.45); z-index:45; }
+.toc-backdrop.show{ display:block; }
+.drawer-close{ display:none; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--paper); align-items:center; justify-content:center; cursor:pointer; font-size:16px; line-height:1; color:var(--sub); flex:none; }
+nav.toc.drawer-open .drawer-close{ display:flex; }
+@keyframes slideIn{ from{ transform:translateX(-100%); opacity:.4; } to{ transform:translateX(0); opacity:1; } }
+
+.hero{ background:radial-gradient(circle 140px at calc(100% - 80px) 80px, rgba(255,255,255,.08) 99%, transparent 100%), radial-gradient(circle 110px at calc(10% + 110px) calc(100% + 10px), rgba(255,255,255,.07) 99%, transparent 100%), linear-gradient(120deg,#1a73e8 0%, #7B61FF 45%, #EA4335 100%); color:#fff; padding:56px 24px 40px; position:relative; }
+.hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:3;}
+.eyebrow{ display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; background:rgba(255,255,255,.18); padding:6px 12px; border-radius:20px; margin-bottom:18px; font-weight:500; }
+.hero h1{font-size:32px; margin:0 0 12px; font-weight:700; line-height:1.25;}
+.hero p.lead{font-size:16px; max-width:700px; opacity:.95; margin:0;}
+.hero-meta{display:flex; gap:20px; flex-wrap:wrap; font-size:13px; opacity:.9; margin-top:16px;}
+.hero-meta span{display:flex; align-items:center; gap:7px;}
+.dot{width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block; flex:none;}
+
+.hero-search-row{ margin-top:22px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+
+.site-search{ position:relative; z-index:2; flex:1 1 300px; }
+.site-search input{
+  width:100%; padding:13px 16px 13px 44px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.32); background:rgba(255,255,255,.14);
+  color:#fff; font-size:14.5px; backdrop-filter:blur(6px); box-sizing:border-box;
+}
+.site-search input::placeholder{ color:rgba(255,255,255,.78); }
+.site-search input:focus{ outline:none; background:rgba(255,255,255,.22); border-color:#fff; }
+.site-search .s-icon{
+  position:absolute; left:15px; top:22px; transform:translateY(-50%);
+  font-size:14px; opacity:.85; pointer-events:none;
+}
+.site-search .s-clear{
+  position:absolute; right:8px; top:22px; transform:translateY(-50%);
+  width:26px; height:26px; border-radius:8px; border:none; background:rgba(255,255,255,.16);
+  color:#fff; font-size:13px; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.site-search.has-query .s-clear{ display:flex; }
+.site-search .s-dropdown{
+  display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.6); max-height:320px; overflow:auto; padding:6px; z-index:30;
+}
+.site-search .s-dropdown.show{ display:block; }
+.site-search .s-item{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px;
+  color:var(--ink); text-decoration:none; font-size:13.5px; cursor:pointer;
+}
+.site-search .s-item:hover, .site-search .s-item.hl{ background:#2c2d30; }
+.site-search .s-item .s-num{
+  font-family:'Roboto Mono',monospace; font-size:11px; color:var(--sub);
+  background:#1a1b1e; border-radius:6px; padding:2px 6px; flex:none; min-width:24px; text-align:center;
+}
+.site-search .s-empty{ padding:14px 10px; font-size:13px; color:var(--sub); text-align:center; }
+
+#siteSearch{ z-index:5; } /* topic dropdown must overlap the 'Find on this page' box that follows it (matters on mobile where they stack) */
+.hero-find-col{ flex:1 1 300px; }
+.hero-find-col .site-search.find-page-search{ max-width:none; }
+.find-page-nav{
+  display:none; align-items:center; justify-content:space-between; gap:8px;
+  margin-top:8px; font-size:12px; color:rgba(255,255,255,.85);
+}
+.find-page-nav.show{ display:flex; }
+.find-page-nav .snav-btns{ display:flex; gap:6px; }
+.find-page-nav button{
+  width:26px; height:26px; border-radius:8px; border:1px solid rgba(255,255,255,.32);
+  background:rgba(255,255,255,.14); color:#fff; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.find-page-nav button:hover{ background:rgba(255,255,255,.24); }
+.find-page-nav button:disabled{ opacity:.4; cursor:default; }
+
+.path-nav{ max-width:1100px; margin:26px auto 0; position:relative; z-index:1; display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:stretch; }
+.path-btn{ display:flex; align-items:center; gap:10px; text-decoration:none; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:14px; padding:10px 16px; backdrop-filter:blur(6px); transition:background .15s ease, transform .15s ease; }
+.path-btn:hover{ background:rgba(255,255,255,.24); transform:translateY(-1px); }
+.path-btn .p-arrow{ font-size:16px; flex:none; }
+.path-btn .p-text{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.path-btn .p-kicker{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.8; }
+.path-btn .p-title{ font-size:13px; font-weight:600; font-family:'Google Sans',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.path-btn.next{ justify-content:flex-end; text-align:right; }
+.path-btn.next .p-text{ align-items:flex-end; }
+.path-btn.index{ justify-content:center; text-align:center; background:rgba(0,0,0,.22); border-color:rgba(255,255,255,.28); padding:10px 18px; }
+.path-btn.index .p-text{ align-items:center; }
+.path-spacer{visibility:hidden;}
+
+.bottom-nav{ max-width:1180px; margin:0 auto 40px; padding:0 24px; display:grid; grid-template-columns:1fr auto 1fr; gap:12px; }
+.bottom-nav .path-btn{ color:var(--ink); background:var(--paper); border:1px solid var(--line); }
+.bottom-nav .path-btn:hover{ background:#2c2d30; }
+.bottom-nav .path-btn.index{ background:#1a2a45; border-color:#2a3a55; }
+
+.wrap-idx{ max-width:1100px; margin:-56px auto 60px; padding:0 24px; }
+
+.layout{ max-width:1180px; margin:-8px auto 60px; padding:0 24px; display:grid; grid-template-columns:250px 1fr; gap:32px; align-items:start; }
+nav.toc{ background:var(--paper); border-radius:16px; box-shadow:var(--card-shadow); padding:18px 10px; position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; }
+nav.toc .toc-head{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); padding:6px 14px 10px; font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+nav.toc a{ display:block; padding:9px 14px; border-radius:10px; color:var(--ink); text-decoration:none; font-size:13.5px; border-left:3px solid transparent; }
+nav.toc a:hover{background:#2c2d30;}
+nav.toc a.active{background:#2a3a55; color:#a8c7fa; border-left-color:var(--blue); font-weight:500;}
+main{min-width:0;}
+
+/* ===== In-page "find" search (lives inside nav.toc — shared by desktop sidebar + mobile drawer) ===== */
+.toc-search{ padding:4px 10px 12px; }
+.toc-search-box{ position:relative; }
+.toc-search input{
+  width:100%; padding:9px 34px 9px 32px; border-radius:10px; border:1px solid var(--line);
+  background:#1a1b1e; color:var(--ink); font-size:13px; box-sizing:border-box;
+}
+.toc-search input::placeholder{ color:var(--sub); }
+.toc-search input:focus{ outline:none; border-color:#5f6368; }
+.toc-search .s-icon{ position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; opacity:.7; pointer-events:none; }
+.toc-search .s-clear{
+  position:absolute; right:5px; top:50%; transform:translateY(-50%);
+  width:22px; height:22px; border-radius:6px; border:none; background:#2c2d30; color:var(--sub);
+  font-size:11px; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.toc-search.has-query .s-clear{ display:flex; }
+.toc-search-nav{
+  display:none; align-items:center; justify-content:space-between; gap:8px;
+  margin-top:8px; font-size:11.5px; color:var(--sub);
+}
+.toc-search-nav.show{ display:flex; }
+.toc-search-nav .snav-btns{ display:flex; gap:4px; }
+.toc-search-nav button{
+  width:24px; height:24px; border-radius:6px; border:1px solid var(--line); background:#1a1b1e;
+  color:var(--ink); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.toc-search-nav button:hover{ background:#2c2d30; }
+.toc-search-nav button:disabled{ opacity:.4; cursor:default; }
+
+mark.search-hit{ background:#fdd663; color:#131417; padding:0 2px; border-radius:3px; }
+mark.search-hit.active{ background:#ff9d45; box-shadow:0 0 0 2px rgba(255,157,69,.35); }
+
+.section{ background:var(--paper); border-radius:18px; box-shadow:var(--card-shadow); padding:30px 32px; margin-bottom:24px; scroll-margin-top:20px; position: sticky;}
+.section .kicker{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.kicker-left{ display:flex; align-items:center; gap:10px; }
+.num-badge{ width:30px;height:30px;border-radius:9px; display:flex;align-items:center;justify-content:center; color:#fff; font-weight:700; font-size:14px; font-family:'Google Sans',sans-serif; flex:none; line-height:1; }
+.section h2{font-size:21px; margin:0; font-weight:700; line-height:1.3;}
+.section p{color:#c7cbd1; font-size:15px; margin:0 0 14px;}
+.section p:last-child{margin-bottom:0;}
+.lede{font-size:15.5px; color:#c7cbd1;}
+.subhead{ font-family:'Google Sans',sans-serif; font-size:14.5px; font-weight:700; color:#e8eaed; margin:22px 0 10px; display:flex; align-items:center; gap:9px; }
+.subhead:first-of-type{margin-top:4px;}
+.subhead .sub-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+.phrase-list{ list-style:none; margin:0 0 4px; padding:0; }
+.phrase-list li{ padding:11px 0; border-bottom:1px solid var(--line); font-size:15px; color:#dfe1e5; }
+.phrase-list li:last-child{ border-bottom:none; }
+.phrase-list .en{ font-weight:500; }
+.phrase-list .si-inline{ display:block; color:#9aa0a6; font-size:13px; margin-top:3px; }
+
+.dialogue{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:16px 0; }
+.dialogue .dlg-title{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:13px; color:var(--yellow); text-transform:uppercase; letter-spacing:.06em; margin-bottom:14px; }
+.dline{ display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+.dline:last-child{margin-bottom:0;}
+.dline .who{ flex:none; width:78px; font-family:'Google Sans',sans-serif; font-weight:700; font-size:12.5px; padding:4px 0; border-radius:8px; text-align:center; color:#fff; height:fit-content; }
+.dline.a .who{ background:#1a73e8; }
+.dline.b .who{ background:#EA4335; }
+.dline.c .who{ background:#34A853; }
+.dline.d .who{ background:#F09300; }
+.dline.e .who{ background:#7B61FF; }
+.dline .msg{ background:#232427; border:1px solid var(--line); border-radius:10px; padding:10px 14px; font-size:14.5px; color:#e8eaed; flex:1; }
+.dline .msg .si-line{ display:block; color:#9aa0a6; font-size:12.5px; margin-top:5px; }
+
+table.vtable{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.vtable th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.vtable td{ padding:11px 12px; border-bottom:1px solid var(--line); color:#dfe1e5; vertical-align:top; }
+table.vtable tr:last-child td{ border-bottom:none; }
+table.vtable td.term{ font-weight:600; color:#fff; white-space:nowrap; }
+.table-wrap{ overflow-x:auto; margin:8px 0 4px; border:1px solid var(--line); border-radius:12px; }
+table.vtable{min-width:520px;}
+
+.callout{ background:#22344d; border-left:4px solid var(--blue); border-radius:10px; padding:14px 18px; font-size:14px; color:#a8c7fa; margin:16px 0; }
+.callout.warn{ background:#3a2530; border-left-color:var(--red); color:#f3b8c2; }
+.callout.tip{ background:#22344d; border-left-color:var(--green); color:#bfe9cd; background:#1c2b22; border-left-color:var(--green); }
+.callout b{color:#fff;}
+
+.role-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0 4px; }
+.role-card{ border-radius:14px; padding:16px 15px; color:#fff; }
+.role-card .r-name{font-family:'Google Sans',sans-serif; font-weight:700; font-size:14px;}
+.role-card .r-focus{font-size:12px; opacity:.92; margin-top:6px; line-height:1.4;}
+.r1{background:#4285F4;} .r2{background:#34A853;} .r3{background:#F09300;} .r4{background:#7B61FF;}
+
+.slide{ background:#1a1b1e; border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin:14px 0; position:relative; }
+.slide::before{ content:"SLIDE"; position:absolute; top:10px; right:14px; font-size:9px; letter-spacing:.12em; color:#5f6368; font-weight:700; }
+.slide .slide-title{ color:var(--blue); font-size:16.5px; font-weight:700; margin:0 0 10px; }
+.slide ul{margin:0; padding-left:20px;}
+.slide li{margin-bottom:7px; font-size:14px; color:#c7cbd1;}
+.slide li::marker{color:var(--blue);}
+.slide.accent-blue .slide-title{color:var(--blue);}
+.slide.accent-red .slide-title{color:var(--red);}
+.slide.accent-yellow .slide-title{color:var(--yellow);}
+.slide.accent-green .slide-title{color:var(--green);}
+.slide.accent-purple .slide-title{color:var(--purple);}
+.slide-row{display:grid; gap:16px;}
+.slide-row.cols-2{grid-template-columns:1fr 1fr;}
+
+.figure{ margin:18px 0; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:#000; }
+.figure img{ display:block; width:100%; }
+.figure figcaption{ padding:10px 16px; font-size:12.5px; color:var(--sub); background:#1a1b1e; border-top:1px solid var(--line); }
+.figure-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+.figure-row .figure{ margin:0; }
+@media (max-width:700px){ .figure-row{grid-template-columns:1fr;} .slide-row.cols-2{grid-template-columns:1fr;} }
+
+.purpose-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:16px 0 4px; }
+.purpose-card{ border-radius:14px; padding:14px 13px; color:#fff; min-height:78px; display:flex; align-items:flex-end; box-shadow:0 2px 6px rgba(0,0,0,.12); font-family:'Google Sans',sans-serif; font-weight:700; font-size:13px; }
+.p1{background:#4285F4;} .p2{background:#34A853;} .p3{background:#F09300;} .p4{background:#7B61FF;} .p5{background:#EA4335;}
+@media (max-width:700px){ .purpose-grid{grid-template-columns:repeat(2,1fr);} }
+
+.exam-list{ list-style:none; margin:0; padding:0; }
+.exam-list li{ display:flex; gap:12px; align-items:flex-start; padding:12px 4px; border-bottom:1px solid var(--line); font-size:14.5px; color:#dfe1e5; }
+.exam-list li:last-child{ border-bottom:none; }
+.exam-list .chk{ flex:none; width:20px; height:20px; border-radius:6px; border:2px solid var(--yellow); margin-top:2px; }
+.exam-list b{ color:#fff; }
+
+/* ===== MCQ Practice Quiz ===== */
+.mcq-quiz-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:#1a1b1e; border:1px solid var(--line); border-radius:12px; padding:12px 18px; margin:16px 0 20px; flex-wrap:wrap; }
+.mcq-quiz-header #mcqScore{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:15px; color:#fff; }
+.mcq-reset-btn{ background:#2c2d30; border:1px solid var(--line); color:var(--ink); font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:9px; cursor:pointer; }
+.mcq-reset-btn:hover{ background:#3a3b3e; }
+.mcq-card{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:16px; }
+.mcq-card:last-child{ margin-bottom:0; }
+.mcq-q{ font-family:'Google Sans',sans-serif; font-size:15px; font-weight:600; color:#fff; margin:0 0 14px; line-height:1.5; }
+.mcq-q .mcq-num{ color:var(--purple); margin-right:6px; }
+.mcq-options{ display:flex; flex-direction:column; gap:9px; }
+.mcq-opt{ display:flex; align-items:center; gap:10px; text-align:left; background:#202124; border:1px solid var(--line); color:#dfe1e5; font-size:13.5px; padding:11px 14px; border-radius:10px; cursor:pointer; transition:background .15s ease, border-color .15s ease; }
+.mcq-opt:hover:not(.locked){ background:#2c2d30; border-color:#5f6368; }
+.mcq-opt .mcq-letter{ flex:none; width:22px; height:22px; border-radius:50%; background:#2c2d30; color:var(--sub); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.mcq-opt.correct{ background:#16301f; border-color:var(--green); color:#c8f5d6; }
+.mcq-opt.correct .mcq-letter{ background:var(--green); color:#0d1f14; }
+.mcq-opt.wrong{ background:#33191c; border-color:var(--red); color:#f7c6c9; }
+.mcq-opt.wrong .mcq-letter{ background:var(--red); color:#fff; }
+.mcq-opt.locked{ cursor:default; }
+.mcq-note{ margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); font-size:12.5px; color:var(--sub); display:none; }
+.mcq-note.show{ display:block; }
+.mcq-note b{ color:#a8c7fa; }
+
+table.gtable{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.gtable th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.gtable td{ padding:11px 12px; border-bottom:1px solid var(--line); color:#dfe1e5; vertical-align:top; }
+table.gtable tr:last-child td{ border-bottom:none; }
+table.gtable td.acr{ font-family:'Roboto Mono',monospace; color:var(--blue); font-weight:700; white-space:nowrap; }
+
+table.ctable{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:520px; }
+table.ctable th{ background:#1a1b1e; text-align:left; font-family:'Google Sans',sans-serif; font-size:12px; color:#a8c7fa; padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap; }
+table.ctable td{ padding:12px 14px; border-bottom:1px solid var(--line); color:#c7cbd1; }
+table.ctable tr:last-child td{ border-bottom:none; }
+table.ctable td.row-head{ font-weight:700; color:#fff; white-space:nowrap; }
+table.ctable tr:hover td{ background:#1e1f22; }
+
+nav.toc .toc-divider{ margin:10px 10px 6px; border-top:1px solid var(--line); padding-top:10px; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:500; }
+
+/* ===== Collapse / expand accordion (beyond-the-lesson sections) ===== */
+.section.collapsible .kicker{ cursor:pointer; user-select:none; }
+.collapse-toggle{
+  display:flex; align-items:center; justify-content:center; flex:none;
+  width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+  background:#1a1b1e; color:var(--sub); cursor:pointer; padding:0;
+}
+.collapse-toggle:hover{ background:#2c2d30; color:var(--ink); }
+.collapse-toggle .chevron{ display:inline-block; font-size:13px; transition:transform .25s ease; }
+.collapse-toggle[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+.collapse-body{ max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .3s ease; }
+.collapse-body.open{ opacity:1; }
+
+/* ===== Sinhala Vocabulary Glossary ===== */
+.vocab-grid{ display:flex; flex-direction:column; gap:22px; margin-top:6px; }
+.vocab-card{ background:#1a1b1e; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.vocab-header{ display:flex; align-items:center; gap:14px; padding:18px 22px 14px; border-bottom:1px solid var(--line); background:#202124; }
+.vocab-word{ font-family:'Google Sans',sans-serif; font-size:21px; font-weight:700; color:#a8c7fa; }
+.vocab-pos{ font-size:12px; color:var(--sub); font-style:italic; background:#2c2d30; padding:3px 9px; border-radius:20px; margin-left:4px; align-self:center; }
+.vocab-body{ padding:16px 22px; }
+.vocab-meanings{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.vocab-en{ background:#1c2b3e; border-left:3px solid var(--blue); border-radius:8px; padding:12px 14px; }
+.vocab-si{ background:#1c2b22; border-left:3px solid var(--green); border-radius:8px; padding:12px 14px; }
+.vocab-lang-label{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; margin-bottom:6px; display:block; }
+.vocab-en .vocab-lang-label{ color:#5b9cf8; }
+.vocab-si .vocab-lang-label{ color:#7cc99a; }
+.vocab-en p{ color:#a8c7fa; font-size:13.5px; margin:0; line-height:1.55; }
+.vocab-si p{ color:#d3e9db; font-size:14.5px; margin:0; line-height:1.6; font-family:'Noto Sans Sinhala','Roboto',sans-serif; }
+.vocab-sentences-head{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.vocab-sentences-head::after{ content:''; flex:1; height:1px; background:var(--line); }
+.vocab-sentences{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+.vocab-sentences li{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:#c7cbd1; line-height:1.55; }
+.vocab-tag{ flex:none; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:12px; margin-top:2px; white-space:nowrap; }
+.tag-daily{ background:#2a2b2e; color:#9aa0a6; }
+.tag-cyber{ background:#3a2530; color:#f3b8c2; }
+.tag-net{ background:#1c2b3e; color:#a8c7fa; }
+.tag-hw{ background:#2b2510; color:#fdd663; }
+.tag-sw{ background:#1c2b22; color:#81c995; }
+.vocab-hl{ color:#fff; font-weight:600; }
+@media (max-width:700px){ .vocab-meanings{grid-template-columns:1fr;} }
+
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 4px;}
+.chip{ background:#2c2d30; border:1px solid var(--line); color:#dfe1e5; font-size:12.5px; padding:6px 12px; border-radius:16px; }
+
+.grammar-point{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; background:#1a1b1e; }
+.grammar-point:last-child{margin-bottom:0;}
+.grammar-point .g-name{ font-family:'Google Sans',sans-serif; font-weight:700; font-size:14.5px; color:var(--blue); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.grammar-point .g-name .g-tag{ font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:#22344d; color:#a8c7fa; padding:3px 8px; border-radius:8px; font-weight:600; }
+.grammar-point p{ font-size:14px; color:#c7cbd1; margin:0 0 8px; }
+.grammar-point ul{ margin:0; padding-left:18px; }
+.grammar-point li{ font-size:13.5px; color:#dfe1e5; margin-bottom:5px; }
+.grammar-point li:last-child{margin-bottom:0;}
+.grammar-point li .ex-en{ color:#e8eaed; }
+.grammar-point li .ex-si{ display:block; color:#9aa0a6; font-size:12px; margin-top:2px; }
+
+table.mistake-table{ width:100%; border-collapse:collapse; margin-top:6px; font-size:14px; }
+table.mistake-table th{ text-align:left; font-family:'Google Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); padding:10px 12px; border-bottom:2px solid var(--line); }
+table.mistake-table td{ padding:12px; border-bottom:1px solid var(--line); vertical-align:top; font-size:13.5px; }
+table.mistake-table tr:last-child td{ border-bottom:none; }
+table.mistake-table td.wrong{ color:var(--red); }
+table.mistake-table td.wrong::before{ content:"\2717  "; }
+table.mistake-table td.right{ color:var(--green); }
+table.mistake-table td.right::before{ content:"\2713  "; }
+table.mistake-table td.note{ color:#9aa0a6; font-size:12.5px; }
+.mistake-table-wrap{ overflow-x:auto; margin:8px 0 4px; border:1px solid var(--line); border-radius:12px; }
+table.mistake-table{min-width:560px;}
+
+footer{ text-align:center; color:var(--sub); font-size:12.5px; padding:20px 0 50px; }
+.back-top{ display:inline-block; margin-top:10px; font-size:12px; color:var(--blue); text-decoration:none; }
+
+@media (max-width:900px){
+  .hero{padding:40px 20px 30px;} .hero h1{font-size:24px;} .hero p.lead{font-size:14.5px;}
+  .layout{grid-template-columns:1fr; margin-top:20px;}
+  .mobile-bar{display:flex;}
+  .hero-search-row{ display:block; }
+  .hero-find-col{ margin-top:10px; }
+  nav.toc{ display:none; }
+  nav.toc.drawer-open{ display:block; position:fixed; top:0; left:0; bottom:0; z-index:50; width:82%; max-width:320px; max-height:none; border-radius:0; box-shadow:2px 0 24px rgba(0,0,0,.18); padding:18px 8px 24px; animation:slideIn .22s ease; overflow:auto; }
+  nav.toc.drawer-open .toc-head{padding:8px 16px 14px;}
+  nav.toc a{padding:12px 16px; font-size:14.5px;}
+  .section{padding:22px 18px;}
+  .role-grid{grid-template-columns:1fr 1fr;}
+  .path-nav{grid-template-columns:1fr; }
+  .path-btn.prev, .path-btn.next{ justify-content:center; text-align:center; }
+  .path-btn.prev .p-text, .path-btn.next .p-text{ align-items:center; }
+  .bottom-nav{grid-template-columns:1fr;}
+}
+@media (max-width:400px){ nav.toc.drawer-open{width:88%;} }
+@media (max-width:560px){
+  .dline{flex-direction:column;}
+  .dline .who{width:auto; align-self:flex-start; padding:3px 10px;}
+  table.vtable{min-width:420px;}
+}
+
+/* ===== Sinhala translation toggles ===== */
+.si-toggle{ display:inline-flex; align-items:center; gap:7px; background:#2a2b2e; border:1px solid var(--line); color:#a8c7fa; font-family:'Roboto',sans-serif; font-weight:500; font-size:12.5px; padding:7px 13px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:background .15s ease, border-color .15s ease; }
+.si-divider{ display:flex; align-items:center; gap:14px; margin:26px 0 0; }
+.si-divider::before, .si-divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+.si-toggle:hover{ background:#33343a; border-color:#5f6368; }
+.si-toggle .flag{ font-size:13px; }
+.si-toggle .arrow{ display:inline-block; transition:transform .2s ease; font-size:10px; }
+.si-toggle[aria-expanded="true"] .arrow{ transform:rotate(180deg); }
+.si-panel{ display:none; background:#1c2b22; border:1px solid #2f5b41; border-left:4px solid var(--green); border-radius:10px; padding:16px 20px; margin-top:14px; font-size:14.5px; color:#d3e9db; }
+.si-panel.open{ display:block; animation:fadeSlide .18s ease; }
+.si-panel p{ color:#d3e9db; font-size:14.5px; margin:0 0 10px; }
+.si-panel p:last-child{ margin-bottom:0; }
+.si-panel .si-label{ font-family:'Roboto',sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#7cc99a; font-weight:700; margin-bottom:8px; display:block; }
+@keyframes fadeSlide{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
+
+
+/* ===== Image lightbox (click to enlarge) ===== */
+.figure img{ cursor:zoom-in; }
+.lb-overlay{ position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; flex-direction:column; gap:12px; background:rgba(10,11,13,.92); padding:24px; cursor:zoom-out; }
+.lb-overlay.open{ display:flex; animation:lbFade .18s ease; }
+.lb-overlay img{ max-width:96vw; max-height:84vh; object-fit:contain; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,.6); background:#fff; animation:lbZoom .2s ease; }
+.lb-caption{ color:#c7cbd1; font-size:13.5px; text-align:center; max-width:90vw; }
+.lb-close{ position:fixed; top:14px; right:16px; width:40px; height:40px; border-radius:50%; border:1px solid #5f6368; background:#2a2b2e; color:#e8eaed; font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.lb-close:hover{ background:#3c4043; }
+.lb-nav{ position:fixed; top:50%; transform:translateY(-50%); width:48px; height:48px; border-radius:50%; border:1px solid #5f6368; background:rgba(42,43,46,.92); color:#e8eaed; font-size:26px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; padding:0 0 3px; }
+.lb-nav:hover{ background:#3c4043; }
+.lb-prev{ left:14px; } .lb-next{ right:14px; }
+.lb-count{ color:#9aa0a6; font-size:12.5px; letter-spacing:.04em; }
+@media (max-width:700px){
+  .lb-overlay{ padding:16px 12px 92px; }
+  .lb-overlay img{ max-height:68vh; }
+  .lb-nav{ top:auto; bottom:22px; transform:none; width:46px; height:46px; font-size:24px; }
+  .lb-prev{ left:calc(50% - 92px); right:auto; }
+  .lb-next{ right:calc(50% - 92px); left:auto; }
+  .lb-count{ position:fixed; bottom:34px; left:50%; transform:translateX(-50%); font-size:13px; }
+}
+@keyframes lbFade{ from{opacity:0;} to{opacity:1;} }
+@keyframes lbZoom{ from{transform:scale(.94);} to{transform:scale(1);} }
+
+/* ===== Back-to-top button (desktop + mobile) ===== */
+.to-top{ position:fixed; right:22px; bottom:22px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); z-index:35; display:flex; align-items:center; justify-content:center; width:48px; height:48px; padding:0; border-radius:50%; border:1px solid #5f6368; background:#000; color:#fff; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.6); opacity:0; visibility:hidden; transform:translateY(14px); transition:opacity .25s ease, transform .25s ease, visibility .25s, background .15s ease; -webkit-tap-highlight-color:transparent; }
+.to-top.show{ opacity:1; visibility:visible; transform:none; }
+.to-top:hover{ background:#2c2d30; }
+.to-top:active{ transform:scale(.96); }
+@media (max-width:900px){ .to-top{ right:14px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); } }
+
+/* ===== Keyboard focus (visible only for keyboard users) ===== */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+button:focus:not(:focus-visible), a:focus:not(:focus-visible){ outline:none; }
+.toc-search input:focus{ border-color:var(--blue); }
+
+/* ===== Mobile: sticky top bar must not cover headings after anchor jumps ===== */
+@media (max-width:900px){ .section, .group{ scroll-margin-top:76px; } }
+
+/* ===== Respect reduced-motion setting ===== */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+</style>
+</head><body>
+<div class="mobile-bar" id="mobileBar"><span class="m-title">13. Growth Journey</span><button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="toc" aria-label="Open section menu"><span></span></button></div>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+<div class="hero"><div class="hero-inner"><span class="eyebrow">Kaye's AI Video Tutorials — Video-by-Video Guide</span><h1>13. Growth Journey</h1><p class="lead">How @kaye.creatives grew to 1.1M followers</p>
+<div class="hero-meta"><span><span class="dot"></span>Oct 10, 2026</span><span><span class="dot"></span>11 sections</span></div>
+<div class="hero-search-row"><div class="site-search" id="siteSearch"><span class="s-icon">🔍</span><input type="text" id="topicJump" placeholder="Jump to a video…" autocomplete="off"><button type="button" class="s-clear" id="jumpClear" aria-label="Clear search">✕</button><div class="s-dropdown" id="jumpDropdown"></div></div>
+<div class="hero-find-col"><div class="site-search find-page-search" id="heroFindWrap"><span class="s-icon">📍</span><input type="text" id="heroFindInput" placeholder="Find on this page…" autocomplete="off"><button type="button" class="s-clear" id="heroFindClear" aria-label="Clear search">✕</button></div>
+<div class="find-page-nav" id="heroFindNav"><span id="heroSearchCount">0 / 0</span><div class="snav-btns"><button type="button" id="heroSearchPrev" aria-label="Previous match">↑</button><button type="button" id="heroSearchNext" aria-label="Next match">↓</button></div></div></div></div></div>
+<div class="path-nav"><a class="path-btn prev" href="12-emotional-short-film.html"><span class="p-arrow">←</span><span class="p-text"><span class="p-kicker">Previous</span><span class="p-title">12. Emotional Short Film</span></span></a><a class="path-btn index" href="index.html"><span class="p-text"><span class="p-kicker">All Videos</span><span class="p-title">🏠 Main Index</span></span></a><a class="path-btn next" href="14-your-plan.html"><span class="p-text"><span class="p-kicker">Next</span><span class="p-title">14. Your Plan</span></span><span class="p-arrow">→</span></a></div></div>
+<div class="layout"><nav class="toc" id="toc"><div class="toc-head">On this page <button type="button" class="drawer-close" id="drawerClose" aria-label="Close menu">✕</button></div>
+<div class="toc-search"><div class="toc-search-box"><span class="s-icon">🔍</span><input type="text" id="pageSearchInput" placeholder="Find on this page…" autocomplete="off"><button type="button" class="s-clear" id="pageSearchClear" aria-label="Clear search">✕</button></div><div class="toc-search-nav" id="searchNav"><span id="searchCount">0 / 0</span><div class="snav-btns"><button type="button" id="searchPrev" aria-label="Previous match">↑</button><button type="button" id="searchNext" aria-label="Next match">↓</button></div></div></div>
+<a href="#snapshot">1. Snapshot (Oct 10, 2026)</a><a href="#latest">2. Latest data (screenshots, Oct 10)</a><a href="#plays">3. Reel play counts (60 reels on her grid)</a><a href="#real">4. Is the growth real? What this data says</a><a href="#timeline">5. Timeline from her own statements</a><a href="#drivers">6. What appears to have driven growth</a><a href="#formula">7. Her repeatable content formula</a><a href="#study">8. How to study her properly (30 minutes)</a><a href="#apply">9. What to copy from the new data</a><a href="#plan">10. Your plan: viral AI shorts before your music (4 years)</a><a href="#risks">11. Risks and honest limits</a></nav><main><section class="section" id="snapshot"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--blue)">1</div><h2>Snapshot (Oct 10, 2026)</h2></div></div><div class="table-wrap"><table class="vtable"><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td class="term">Handle</td><td>kaye.creatives, verified; display name Kareema Yertargyn</td></tr><tr><td class="term">Bio</td><td>Digital creator, musician and CS engineer</td></tr><tr><td class="term">Posts</td><td>190</td></tr><tr><td class="term">Followers / following</td><td>1.1M / 112</td></tr><tr><td class="term">First post</td><td>April 1 (intro reel, 846 likes): 'I'm a musician, an engineer and creator. Every story has a beginning.'</td></tr><tr><td class="term">Link in bio</td><td>Points to her newest YouTube video (the Oct 9 one)</td></tr><tr><td class="term">YouTube (@Kaye.creates)</td><td>channel joined Apr 26, 2026 (25 days after her first Instagram post); 51.8K subscribers, 64 videos, 1,762,634 total views; about 310 new subscribers a day on average</td></tr><tr><td class="term">Other platforms</td><td>TikTok (@kaye.creates1) and Threads (@kaye.creatives)</td></tr></tbody></table></div><div class="callout tip"><b>Rates (my arithmetic):</b> April 1 to Oct 10 is about 192 days, so roughly 6.9 posts a week and about 5,700 new followers a day on average. Growth was almost certainly spiky, not steady.</div></section><section class="section" id="latest"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--green)">2</div><h2>Latest data (screenshots, Oct 10)</h2></div></div><p class="lede">Instagram: her four newest posts, all using a comment-a-keyword call to action.</p><div class="table-wrap"><table class="vtable"><thead><tr><th>Post</th><th>Age</th><th>Likes</th><th>Comments</th><th>Likes vs 1.1M</th><th>Keyword</th></tr></thead><tbody><tr><td class="term">AI realism / zombie film promo</td><td>11h</td><td>3,324</td><td>not shown</td><td>0.30%</td><td>ZOMBIE</td></tr><tr><td class="term">Soft umbrella portrait</td><td>13h</td><td>4,871</td><td>768</td><td>0.44%</td><td>SOFT (prompts)</td></tr><tr><td class="term">What if I were a movie actress?</td><td>1d</td><td>20.4K</td><td>1,863</td><td>1.85%</td><td>MOVIE (prompts)</td></tr><tr><td class="term">Stop wasting credits promo</td><td>2d</td><td>3,025</td><td>915</td><td>0.27%</td><td>SAVE (link and guide)</td></tr></tbody></table></div><p class="lede">YouTube: her 12 newest videos (total about 1.63M views in roughly two months; median about 108K).</p><div class="table-wrap"><table class="vtable"><thead><tr><th>Video</th><th>Views</th><th>Age</th><th>Length</th></tr></thead><tbody><tr><td class="term">3 Step Workflow to Master AI Realism</td><td>26K</td><td>23h</td><td>16:38</td></tr><tr><td class="term">6 Steps to Stop Burning AI Credits</td><td>68K</td><td>4d</td><td>17:55</td></tr><tr><td class="term">Perfect AI Realism on the First Try</td><td>214K</td><td>10d</td><td>11:15</td></tr><tr><td class="term">Red Bull F1 Commercial + Blender</td><td>373K</td><td>13d</td><td>18:01</td></tr><tr><td class="term">iPhone 18 Commercial</td><td>113K</td><td>2w</td><td>28:40</td></tr><tr><td class="term">Solo Filmmaking: 3 Rules</td><td>104K</td><td>1mo</td><td>7:17</td></tr><tr><td class="term">Unlock Your Creative Genius</td><td>75K</td><td>1mo</td><td>4:15</td></tr><tr><td class="term">Classical Art to Movie Scenes</td><td>27K</td><td>1mo</td><td>11:53</td></tr><tr><td class="term">Spider-Man Scene at Home</td><td>134K</td><td>1mo</td><td>14:31</td></tr><tr><td class="term">Realistic AI Images</td><td>36K</td><td>1mo</td><td>11:02</td></tr><tr><td class="term">6M Views and a Trend</td><td>184K</td><td>2mo</td><td>10:13</td></tr><tr><td class="term">11M Views and 30K Subs in 3 Days</td><td>280K</td><td>2mo</td><td>8:16</td></tr></tbody></table></div><p class="lede">YouTube Shorts: her 12 newest get 2.0K to 5.6K views each (about 3.5K average, about 41K in total). They are talking-head tips cut from the long videos, so Shorts are not what grows her YouTube; the long tutorials are.</p></section><section class="section" id="plays"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--red)">3</div><h2>Reel play counts (60 reels on her grid)</h2></div></div><div class="callout tip"><b>Summary (my arithmetic):</b> 60 reels total about 87M views. The median reel has about 352K views, her floor is about 70-100K, and 14 reels passed 1M. Her three pinned reels alone have 50.7M (portal 28M, Disney Castle 12.6M, Spider-Verse 10.1M).</div><div class="table-wrap"><table class="vtable"><thead><tr><th>Reel</th><th>Views</th></tr></thead><tbody><tr><td class="term">Creating a portal to Fantasy World</td><td>28.0M</td></tr><tr><td class="term">Seedance 2.0 Disney Castle</td><td>12.6M</td></tr><tr><td class="term">Across the Spider-Verse</td><td>10.1M</td></tr><tr><td class="term">Kitty and Bob</td><td>3.6M</td></tr><tr><td class="term">Red Bull Gives You Wings</td><td>3.4M</td></tr><tr><td class="term">Concert</td><td>2.3M</td></tr><tr><td class="term">Kaye's world</td><td>2.2M</td></tr><tr><td class="term">Welcome to Hogwarts</td><td>2.0M</td></tr><tr><td class="term">Genjutsu (split screen)</td><td>1.7M</td></tr><tr><td class="term">My Robot Bestfriend</td><td>1.7M</td></tr><tr><td class="term">Raindance</td><td>1.6M</td></tr><tr><td class="term">Raindance Genjutsu</td><td>1.5M</td></tr><tr><td class="term">Apple store reel</td><td>1.1M</td></tr><tr><td class="term">My little island</td><td>1.0M</td></tr></tbody></table></div><p class="lede">By type, the median views per reel:</p><div class="table-wrap"><table class="vtable"><thead><tr><th>Type</th><th>Reels</th><th>Median views</th></tr></thead><tbody><tr><td class="term">Cinematic story or visual idea</td><td>33</td><td>434K</td></tr><tr><td class="term">Brand-spec ads</td><td>5</td><td>481K</td></tr><tr><td class="term">Music and performance (incl. Genjutsu demos)</td><td>9</td><td>290K</td></tr><tr><td class="term">Tutorial and breakdown promos</td><td>10</td><td>234K</td></tr><tr><td class="term">Talk and opinion</td><td>3</td><td>97.6K</td></tr></tbody></table></div><p class="lede">Likes against plays on her four newest reels: movie actress 20.4K likes on 336K views (6.1%), Soft 4.9K on 85K (5.7%), zombie promo 3.3K on 83K (4.0%), credits promo 3.0K on 104K (2.9%).</p></section><section class="section" id="real"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--yellow)">4</div><h2>Is the growth real? What this data says</h2></div></div><ul class="exam-list"><li><span class="chk"></span><span><b>YouTube is the strongest evidence.</b> Public counts are harder to fake, and 11 of 12 videos have views of 1.3x to 7x her 51.8K subscribers, which means people outside her base are finding them.</span></li><li><span class="chk"></span><span><b>Instagram likes are 0.27% to 1.85% of followers.</b> That is low on the promo reels and healthy on the movie reel. Big accounts usually have lower rates than small ones, so this is not alarming, but it suggests many followers came from viral spikes and do not engage with every post.</span></li><li><span class="chk"></span><span><b>Like counts vary a lot (3K to 20K).</b> Bought engagement tends to look flat; this looks like real posts that perform differently.</span></li><li><span class="chk"></span><span><b>Comment counts are inflated by the keyword call to action,</b> so they say little about sentiment either way. Blank-avatar keyword commenters are normal in these funnels.</span></li><li><span class="chk"></span><span><b>The totals add up.</b> The 12 long videos (about 1.63M) plus 12 Shorts (about 41K) fit inside the channel total of 1.76M views, leaving about 90K for her other videos. Numbers that reconcile this way are a good sign.</span></li><li><span class="chk"></span><span><b>Play counts and likes line up.</b> Likes are about 3-6% of plays on her newest reels, a normal range for real viewers. Her spoken claims also check out: she said 11M for the portal reel (now 28M), nearly 8M for Spider-Verse (now 10.1M), and 800K for the iPhone ad (an Apple-store reel now shows 1.1M).</span></li><li><span class="chk"></span><span><b>Verdict:</b> the evidence now points strongly to organic growth driven by a few huge reels. Still missing: her follower curve over time.</span></li></ul></section><section class="section" id="timeline"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--purple)">5</div><h2>Timeline from her own statements</h2></div></div><div class="table-wrap"><table class="vtable"><thead><tr><th>Date</th><th>Event (her claim, unverified)</th></tr></thead><tbody><tr><td class="term">Apr 1</td><td>First post: personal intro reel</td></tr><tr><td class="term">By Aug 5</td><td>Door-portal reel: 11M views, 30K followers in 3 days</td></tr><tr><td class="term">Aug 8</td><td>Two reels pass 6M views and start a recreation trend</td></tr><tr><td class="term">Aug 20</td><td>Spider-Verse scene: nearly 8M views, thousands of recreations</td></tr><tr><td class="term">Aug 27</td><td>Classical paintings as movie scenes: 8M views, reposted by large media pages</td></tr><tr><td class="term">Sep 19</td><td>iPhone 18 ad: 800K+ views, an Apple creative team member commented</td></tr><tr><td class="term">Sep 26</td><td>Red Bull F1 ad, episode 2 of 'fake commercials for big brands'</td></tr><tr><td class="term">Oct 9</td><td>Short film: 2M views, hundreds of recreations, AI companies paying creators to remake it</td></tr></tbody></table></div><p class="lede">Her numbers are spoken in videos, not audited; in the Aug 20 video she cites both 5M and 8M for the same reel.</p></section><section class="section" id="drivers"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--blue)">6</div><h2>What appears to have driven growth</h2></div></div><ul class="exam-list"><li><span class="chk"></span><span><b>A few huge hits.</b> Four or five reels at 6-11M views would explain most of the followers (inference).</span></li><li><span class="chk"></span><span><b>She is the hero.</b> Character sheets keep her face and outfit consistent, so viewers follow a person, not random clips.</span></li><li><span class="chk"></span><span><b>Familiar reference plus impossible visual.</b> A door to a fantasy world, a Spider-Verse jump, paintings coming alive, an Apple chase scene.</span></li><li><span class="chk"></span><span><b>Trend timing.</b> The Odyssey, Spider-Man hype, the iPhone 18 launch, Apple's new CEO: she used what was already being searched.</span></li><li><span class="chk"></span><span><b>Copyable formats.</b> Hundreds of recreations of one video are free distribution.</span></li><li><span class="chk"></span><span><b>Two-layer funnel.</b> Viral reel on Instagram, full breakdown on YouTube, free guide with prompts: viewers become followers, subscribers and list members.</span></li><li><span class="chk"></span><span><b>Platform partner.</b> Every tutorial runs in Higgsfield with links; this is likely a sponsorship or affiliate relationship (not confirmed), which adds reach and money.</span></li><li><span class="chk"></span><span><b>Brand-spec series.</b> Unasked ads for Apple and Red Bull attract brand attention and a portfolio.</span></li><li><span class="chk"></span><span><b>High cadence.</b> About one post a day.</span></li><li><span class="chk"></span><span><b>A clear identity.</b> Musician and engineer, stated in the first post and bio.</span></li><li><span class="chk"></span><span><b>Comment-a-keyword call to action.</b> All four newest posts ask for ZOMBIE, SOFT, MOVIE or SAVE to get prompts or a guide. This likely feeds comments to the algorithm and probably auto-sends a link (my inference).</span></li><li><span class="chk"></span><span><b>Entertainment beats promo.</b> The pure story reel got about 4 to 7 times the likes of the tutorial promos; the promos exist to move viewers to YouTube.</span></li><li><span class="chk"></span><span><b>Pinned hits.</b> Her three biggest reels (50.7M views) are pinned at the top of the grid, so every new visitor sees proof first.</span></li><li><span class="chk"></span><span><b>Recurring characters and series.</b> Bob the cat (Kitty and Bob 3.6M, Drifting with Bob, Kaye and Bob ep.3), My World ep.3, Kaye's world 2.2M, My Robot Bestfriend 1.7M.</span></li><li><span class="chk"></span><span><b>Title cards.</b> Nearly every reel has a short, stylised title on screen (Raindance, Runaway, Falling, Slow Down), which makes the grid look like a catalogue.</span></li><li><span class="chk"></span><span><b>Music-led reels.</b> Raindance 1.6M, Runaway 761K and the Genjutsu split-screen demos (1.5M to 1.7M) work like AI music videos, directly relevant to your plan.</span></li><li><span class="chk"></span><span><b>Talk reels do worst.</b> Opinion and tip reels sit at about 100K or less, tutorial promos in the middle, cinematic ideas on top.</span></li></ul><div class="callout warn"><b>Cannot see:</b> per-reel views, follower curve, paid promotion, shoutouts, or which posts flopped. Without those, the list above is a hypothesis, not proof.</div></section><section class="section" id="formula"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--green)">7</div><h2>Her repeatable content formula</h2></div></div><div class="slide"><div class="slide-title">Five-step loop</div><ol><li>Pick a trending cultural moment or famous scene.</li><li>Add one impossible twist with her as the lead.</li><li>Lock assets (character, location, prop sheets); draft at 480p; upscale winners.</li><li>Post a 10-30 second vertical reel; invite recreations and ask which scene next.</li><li>Publish the breakdown on YouTube with a free guide; repeat.</li></ol></div></section><section class="section" id="study"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--red)">8</div><h2>How to study her properly (30 minutes)</h2></div></div><ul class="exam-list"><li><span class="chk"></span><span>Sort her reels by views and list the top 10 with date, length, hook text and audio.</span></li><li><span class="chk"></span><span>Note the first 2 seconds of each: text on screen, face, motion.</span></li><li><span class="chk"></span><span>Mark which hits used a trend, a brand, a movie or an original idea.</span></li><li><span class="chk"></span><span>Compare the same dates with her follower jumps if you can see them in a tracker.</span></li><li><span class="chk"></span><span>Save the posts that started recreations and note how she invited them.</span></li><li><span class="chk"></span><span>Repeat monthly and add the new videos to this guide.</span></li></ul></section><section class="section" id="apply"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--yellow)">9</div><h2>What to copy from the new data</h2></div></div><ul class="exam-list"><li><span class="chk"></span><span>Make mostly entertainment reels (story, face, cinematic idea) and use a smaller number of promo reels for your link in bio.</span></li><li><span class="chk"></span><span>Add a keyword call to action to each reel and deliver something useful (a prompt, a track preview) to build a list you own.</span></li><li><span class="chk"></span><span>Check Instagram's automation and AI-label rules before you automate replies.</span></li><li><span class="chk"></span><span>Track likes per follower and shares per reel from day one so you can copy what works.</span></li><li><span class="chk"></span><span>Instagram Reels is the proven engine in her data (1.1M followers against 51.8K on YouTube). Her talking-head YouTube Shorts are weak at about 3.5K views, so test cinematic Shorts on your own before relying on them.</span></li><li><span class="chk"></span><span>Pin your three best reels and update the pins as new hits arrive.</span></li><li><span class="chk"></span><span>Create one recurring character and name the series (a cat, a robot, you), with a short title card on every reel.</span></li><li><span class="chk"></span><span>Make music-led AI reels with your own tracks; they are her second-biggest category and fit your goal.</span></li></ul></section><section class="section" id="plan"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--purple)">10</div><h2>Your plan: viral AI shorts before your music (4 years)</h2></div></div><div class="table-wrap"><table class="vtable"><thead><tr><th>Phase</th><th>Goal</th><th>Actions</th></tr></thead><tbody><tr><td class="term">Now to Dec 2026</td><td>Set up the engine</td><td>New account in the NeroVoxx brand; one recurring character (Soul ID or character sheets); 3 format ideas; weekly batch-production evening; your own music as the soundtrack</td></tr><tr><td class="term">2027: 90-day sprint</td><td>60+ posts</td><td>Test 3 formats; ride a trend within 48 hours; keep what gets shares and non-follower reach; stop what does not</td></tr><tr><td class="term">Move to Dubai</td><td>Protect the habit</td><td>Batch one evening a week around the new job; reuse assets; keep cadence at 3-5 posts a week</td></tr><tr><td class="term">Year 3</td><td>Own the audience</td><td>Link in bio to a mailing list; short behind-the-scenes posts about your music; tease unreleased tracks</td></tr><tr><td class="term">Year 4</td><td>Release</td><td>Launch the music to a warm audience; keep the AI videos as visuals for each track</td></tr></tbody></table></div><p class="lede">These are targets, not predictions. 1.1M in about six months is an outlier; plan for a slower curve and watch shares, saves and non-follower reach.</p></section><section class="section" id="risks"><div class="kicker"><div class="kicker-left"><div class="num-badge" style="background:var(--blue)">11</div><h2>Risks and honest limits</h2></div></div><ul class="exam-list"><li><span class="chk"></span><span><b>Followers are not listeners.</b> Put your own music under every video from the start so the audience already knows your sound.</span></li><li><span class="chk"></span><span><b>Brand and movie IP.</b> Ads with Apple, Red Bull or Spider-Man characters can be taken down; original ideas are safer for a long-term account.</span></li><li><span class="chk"></span><span><b>AI backlash.</b> Her classical-art video drew complaints; label AI clearly.</span></li><li><span class="chk"></span><span><b>Credit cost.</b> Follow the draft-first rules in this guide.</span></li><li><span class="chk"></span><span><b>Time.</b> A cloud security job leaves limited hours; batch.</span></li></ul></section><footer>Kaye's AI Video Tutorials — Video-by-Video Guide<br><a class="back-top" href="#top">Back to top ↑</a></footer></main></div>
+<div class="bottom-nav"><a class="path-btn prev" href="12-emotional-short-film.html"><span class="p-arrow">←</span><span class="p-text"><span class="p-kicker">Previous</span><span class="p-title">12. Emotional Short Film</span></span></a><a class="path-btn index" href="index.html"><span class="p-text"><span class="p-kicker">All Videos</span><span class="p-title">🏠 Main Index</span></span></a><a class="path-btn next" href="14-your-plan.html"><span class="p-text"><span class="p-kicker">Next</span><span class="p-title">14. Your Plan</span></span><span class="p-arrow">→</span></a></div>
+<script>
+  window.__NAV_TOPICS__ = [{"num": "01", "title": "Door-Portal Video", "href": "01-door-portal-video.html"}, {"num": "02", "title": "Knight and Cliff Reels", "href": "02-knight-and-cliff-reels.html"}, {"num": "03", "title": "Image Models Compared", "href": "03-image-models-compared.html"}, {"num": "04", "title": "Spider-Verse Recreation", "href": "04-spider-verse-recreation.html"}, {"num": "05", "title": "Classical Art to Movie Scenes", "href": "05-classical-art-to-movie-scenes.html"}, {"num": "06", "title": "Idea Collision", "href": "06-idea-collision.html"}, {"num": "07", "title": "Solo Filmmaking", "href": "07-solo-filmmaking.html"}, {"num": "08", "title": "iPhone 18 Commercial", "href": "08-iphone-18-commercial.html"}, {"num": "09", "title": "Red Bull F1 Commercial", "href": "09-red-bull-f1-commercial.html"}, {"num": "10", "title": "Realism First Try", "href": "10-realism-first-try.html"}, {"num": "11", "title": "Stop Burning Credits", "href": "11-stop-burning-credits.html"}, {"num": "12", "title": "Emotional Short Film", "href": "12-emotional-short-film.html"}, {"num": "13", "title": "Growth Journey", "href": "13-growth-journey.html"}, {"num": "14", "title": "Your Plan", "href": "14-your-plan.html"}, {"num": "15", "title": "Briefs and Pricing", "href": "15-briefs-and-pricing.html"}, {"num": "16", "title": "General Playbook", "href": "16-general-playbook.html"}];
+  window.__CURRENT_HREF__ = "07-emerging-technologies.html";
+</script>
+<script>
+  // ===== TOC scroll-spy — highlights the active section link as you scroll =====
+  const sections = document.querySelectorAll('.section[id]');
+  const tocLinks = document.querySelectorAll('nav.toc a[href^="#"]');
+  const tocMap = {};
+  tocLinks.forEach(l => tocMap[l.getAttribute('href').slice(1)] = l);
+
+  const tocObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      if(entry.isIntersecting){
+        tocLinks.forEach(l => l.classList.remove('active'));
+        if(tocMap[id]) tocMap[id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(s => tocObserver.observe(s));
+
+  // ===== Bottom-of-page fallback — last section is short so the observer never fires for it =====
+  window.addEventListener('scroll', () => {
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    if(scrollBottom >= pageHeight - 60){
+      const lastLink = tocLinks[tocLinks.length - 1];
+      if(lastLink && !lastLink.classList.contains('active')){
+        tocLinks.forEach(l => l.classList.remove('active'));
+        lastLink.classList.add('active');
+      }
+    }
+  }, { passive: true });
+</script>
+<script>
+(function(){
+  const toc = document.getElementById('toc');
+  const menuBtn = document.getElementById('menuBtn');
+  const drawerClose = document.getElementById('drawerClose');
+  const backdrop = document.getElementById('tocBackdrop');
+  if(!toc || !menuBtn) return;
+
+  function openDrawer(){
+    toc.classList.add('drawer-open');
+    if(backdrop) backdrop.classList.add('show');
+    menuBtn.setAttribute('aria-expanded','true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    toc.classList.remove('drawer-open');
+    if(backdrop) backdrop.classList.remove('show');
+    menuBtn.setAttribute('aria-expanded','false');
+    document.body.style.overflow = '';
+  }
+
+  menuBtn.addEventListener('click', () => {
+    toc.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+  });
+  if(drawerClose) drawerClose.addEventListener('click', closeDrawer);
+  if(backdrop) backdrop.addEventListener('click', closeDrawer);
+  toc.querySelectorAll('a').forEach(l => l.addEventListener('click', closeDrawer));
+  window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeDrawer(); });
+  window.addEventListener('resize', () => { if(window.innerWidth > 900) closeDrawer(); });
+})();
+
+// ===== In-page "find" search (shared engine — drives both the sidebar/mobile-menu box and the hero box) =====
+(function(){
+  const mainEl = document.querySelector('main');
+  if(!mainEl) return;
+  let matches = [];
+  let activeIndex = -1;
+  const uiSets = [];
+
+  function clearHighlights(){
+    mainEl.querySelectorAll('mark.search-hit').forEach(mark => {
+      const parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+    matches = [];
+    activeIndex = -1;
+  }
+
+  function walkAndHighlight(query){
+    const lowerQuery = query.toLowerCase();
+    const walker = document.createTreeWalker(mainEl, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const tag = node.parentElement ? node.parentElement.tagName : '';
+        if(tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const textNodes = [];
+    let n;
+    while((n = walker.nextNode())) textNodes.push(n);
+
+    textNodes.forEach(node => {
+      const text = node.nodeValue;
+      const lowerText = text.toLowerCase();
+      if(!lowerText.includes(lowerQuery)) return;
+
+      const frag = document.createDocumentFragment();
+      let lastIndex = 0;
+      let idx = lowerText.indexOf(lowerQuery);
+
+      while(idx !== -1){
+        if(idx > lastIndex){
+          frag.appendChild(document.createTextNode(text.slice(lastIndex, idx)));
+        }
+        const mark = document.createElement('mark');
+        mark.className = 'search-hit';
+        mark.textContent = text.slice(idx, idx + query.length);
+        frag.appendChild(mark);
+        matches.push(mark);
+        lastIndex = idx + query.length;
+        idx = lowerText.indexOf(lowerQuery, lastIndex);
+      }
+      if(lastIndex < text.length){
+        frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  function updateAllUI(){
+    uiSets.forEach(ui => {
+      if(matches.length === 0){
+        ui.navBar.classList.remove('show');
+        ui.prevBtn.disabled = true;
+        ui.nextBtn.disabled = true;
+        ui.countLabel.textContent = '0 / 0';
+      } else {
+        ui.navBar.classList.add('show');
+        ui.prevBtn.disabled = false;
+        ui.nextBtn.disabled = false;
+        ui.countLabel.textContent = `${activeIndex + 1} / ${matches.length}`;
+      }
+    });
+  }
+
+  function syncValue(value){
+    uiSets.forEach(ui => {
+      if(ui.input.value !== value) ui.input.value = value;
+      ui.wrap.classList.toggle('has-query', value.trim().length > 0);
+    });
+  }
+
+  function goToMatch(index){
+    if(matches.length === 0) return;
+    if(activeIndex >= 0 && matches[activeIndex]) matches[activeIndex].classList.remove('active');
+    activeIndex = ((index % matches.length) + matches.length) % matches.length;
+    const mark = matches[activeIndex];
+    mark.classList.add('active');
+    mark.scrollIntoView({ behavior:'smooth', block:'center' });
+    updateAllUI();
+  }
+
+  function runSearch(rawQuery){
+    clearHighlights();
+    const query = rawQuery.trim();
+    syncValue(rawQuery);
+
+    if(query.length < 2){
+      updateAllUI();
+      return;
+    }
+
+    walkAndHighlight(query);
+
+    if(matches.length === 0){
+      updateAllUI();
+      return;
+    }
+
+    goToMatch(0);
+  }
+
+  function resetAll(){
+    syncValue('');
+    clearHighlights();
+    updateAllUI();
+  }
+
+  function bindUI(ui){
+    if(!ui.input || !ui.clearBtn || !ui.wrap || !ui.navBar || !ui.countLabel || !ui.prevBtn || !ui.nextBtn) return;
+    uiSets.push(ui);
+    let debounceTimer = null;
+
+    ui.input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const val = ui.input.value;
+      debounceTimer = setTimeout(() => runSearch(val), 200);
+    });
+
+    ui.input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(matches.length > 0) goToMatch(activeIndex + (e.shiftKey ? -1 : 1));
+      }
+      if(e.key === 'Escape'){
+        resetAll();
+        ui.input.blur();
+      }
+    });
+
+    ui.prevBtn.addEventListener('click', () => goToMatch(activeIndex - 1));
+    ui.nextBtn.addEventListener('click', () => goToMatch(activeIndex + 1));
+    ui.clearBtn.addEventListener('click', () => {
+      resetAll();
+      ui.input.focus();
+    });
+  }
+
+  bindUI({
+    input: document.getElementById('pageSearchInput'),
+    clearBtn: document.getElementById('pageSearchClear'),
+    wrap: document.getElementById('pageSearchInput') ? document.getElementById('pageSearchInput').closest('.toc-search') : null,
+    navBar: document.getElementById('searchNav'),
+    countLabel: document.getElementById('searchCount'),
+    prevBtn: document.getElementById('searchPrev'),
+    nextBtn: document.getElementById('searchNext'),
+  });
+
+  bindUI({
+    input: document.getElementById('heroFindInput'),
+    clearBtn: document.getElementById('heroFindClear'),
+    wrap: document.getElementById('heroFindWrap'),
+    navBar: document.getElementById('heroFindNav'),
+    countLabel: document.getElementById('heroSearchCount'),
+    prevBtn: document.getElementById('heroSearchPrev'),
+    nextBtn: document.getElementById('heroSearchNext'),
+  });
+
+  window.addEventListener('keydown', (e) => {
+    const focusedIsSearch = uiSets.some(ui => document.activeElement === ui.input);
+    const heroFindInput = document.getElementById('heroFindInput');
+    if(e.key === '/' && !focusedIsSearch && !e.metaKey && !e.ctrlKey && heroFindInput){
+      e.preventDefault();
+      heroFindInput.focus();
+    }
+  });
+})();
+
+// ===== Global topic search (jump to any other topic page from this page's hero) =====
+(function(){
+  const TOPICS = window.__NAV_TOPICS__ || [];
+  const CURRENT_HREF = window.__CURRENT_HREF__ || '';
+
+  const jumpInput = document.getElementById('topicJump');
+  const jumpWrap = document.getElementById('siteSearch');
+  const jumpClear = document.getElementById('jumpClear');
+  const dropdown = document.getElementById('jumpDropdown');
+  if(!jumpInput || !jumpWrap || !jumpClear || !dropdown) return;
+
+  let results = [];
+  let hlIndex = -1;
+
+  function render(query){
+    const q = query.trim().toLowerCase();
+    if(q === ''){
+      dropdown.classList.remove('show');
+      dropdown.innerHTML = '';
+      results = [];
+      hlIndex = -1;
+      return;
+    }
+
+    results = TOPICS.filter(t => t.title.toLowerCase().includes(q)).slice(0, 8);
+    hlIndex = -1;
+
+    if(results.length === 0){
+      dropdown.innerHTML = '<div class="s-empty">No topics match your search</div>';
+    } else {
+      dropdown.innerHTML = results.map((t, i) => {
+        const current = t.href === CURRENT_HREF ? ' (this page)' : '';
+        return `<a class="s-item" href="${t.href}" data-idx="${i}"><span class="s-num">${t.num}</span><span>${t.title}${current}</span></a>`;
+      }).join('');
+    }
+    dropdown.classList.add('show');
+  }
+
+  function setHighlight(i){
+    const items = dropdown.querySelectorAll('.s-item');
+    items.forEach(el => el.classList.remove('hl'));
+    if(i >= 0 && items[i]){
+      items[i].classList.add('hl');
+      items[i].scrollIntoView({ block:'nearest' });
+    }
+    hlIndex = i;
+  }
+
+  jumpInput.addEventListener('input', () => {
+    jumpWrap.classList.toggle('has-query', jumpInput.value.trim().length > 0);
+    render(jumpInput.value);
+  });
+
+  jumpInput.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(results.length) setHighlight((hlIndex + 1) % results.length);
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(results.length) setHighlight((hlIndex - 1 + results.length) % results.length);
+    } else if(e.key === 'Enter'){
+      if(hlIndex >= 0 && results[hlIndex]){
+        window.location.href = results[hlIndex].href;
+      } else if(results.length > 0){
+        window.location.href = results[0].href;
+      }
+    } else if(e.key === 'Escape'){
+      jumpInput.value = '';
+      jumpWrap.classList.remove('has-query');
+      render('');
+      jumpInput.blur();
+    }
+  });
+
+  jumpClear.addEventListener('click', () => {
+    jumpInput.value = '';
+    jumpWrap.classList.remove('has-query');
+    render('');
+    jumpInput.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if(!jumpWrap.contains(e.target)){
+      dropdown.classList.remove('show');
+    }
+  });
+})();
+
+// ===== Collapse / expand accordion (exam, glossary, comparison, vocab) =====
+(function(){
+  const GROUP_IDS = ['exam', 'glossary', 'comparison', 'sinhala-vocab', 'mcq-practice'];
+  const items = GROUP_IDS.map(id => ({
+    id,
+    section: document.getElementById(id),
+    body: document.getElementById(`${id}-body`),
+    toggle: document.getElementById(`${id}-toggle`),
+  })).filter(item => item.section && item.body && item.toggle);
+
+  function openItem(item, animate){
+    item.body.classList.add('open');
+    item.toggle.setAttribute('aria-expanded', 'true');
+    if(animate === false){
+      item.body.style.maxHeight = 'none';
+      return;
+    }
+    item.body.style.maxHeight = item.body.scrollHeight + 'px';
+    const onEnd = (e) => {
+      if(e.propertyName !== 'max-height') return;
+      item.body.style.maxHeight = 'none';
+      item.body.removeEventListener('transitionend', onEnd);
+    };
+    item.body.addEventListener('transitionend', onEnd);
+  }
+
+  function closeItem(item){
+    if(!item.body.classList.contains('open')) return;
+    const current = item.body.scrollHeight;
+    item.body.style.maxHeight = current + 'px';
+    item.body.offsetHeight;
+    requestAnimationFrame(() => {
+      item.body.style.maxHeight = '0px';
+    });
+    item.body.classList.remove('open');
+    item.toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleItem(id){
+    const clicked = items.find(i => i.id === id);
+    if(!clicked) return;
+    const isOpen = clicked.body.classList.contains('open');
+    items.forEach(i => { if(i !== clicked) closeItem(i); });
+    if(isOpen){
+      closeItem(clicked);
+    } else {
+      openItem(clicked, true);
+    }
+  }
+
+  items.forEach(item => {
+    item.toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleItem(item.id);
+    });
+    item.section.querySelector('.kicker').addEventListener('click', () => toggleItem(item.id));
+  });
+
+  window.__openAccordionSection = function(id){
+    const item = items.find(i => i.id === id);
+    if(!item) return;
+    if(!item.body.classList.contains('open')){
+      items.forEach(i => { if(i !== item) closeItem(i); });
+      openItem(item, true);
+    }
+  };
+
+  if(location.hash){
+    const targetId = location.hash.slice(1);
+    if(GROUP_IDS.includes(targetId)){
+      window.__openAccordionSection(targetId);
+      requestAnimationFrame(() => {
+        document.getElementById(targetId).scrollIntoView({ block:'start' });
+      });
+    }
+  }
+
+  document.querySelectorAll('nav.toc a[href^="#"]').forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    if(!GROUP_IDS.includes(id)) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.__openAccordionSection(id);
+      history.pushState(null, '', '#' + id);
+      requestAnimationFrame(() => {
+        document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+  });
+})();
+</script>
+<script>
+  document.querySelectorAll('.si-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById(btn.getAttribute('data-target'));
+      if(!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+</script>
+<script>
+(function(){
+  const imgs = Array.from(document.querySelectorAll('.figure img'));
+  const overlay = document.createElement('div');
+  overlay.className = 'lb-overlay';
+  overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true'); overlay.setAttribute('aria-label','Enlarged image');
+  overlay.innerHTML = '<button type="button" class="lb-close" aria-label="Close image">&times;</button>' +
+    '<button type="button" class="lb-nav lb-prev" aria-label="Previous image">&#8249;</button>' +
+    '<button type="button" class="lb-nav lb-next" aria-label="Next image">&#8250;</button>' +
+    '<img alt=""><div class="lb-caption"></div><div class="lb-count"></div>';
+  document.body.appendChild(overlay);
+  const bigImg = overlay.querySelector('img');
+  const cap = overlay.querySelector('.lb-caption');
+  const count = overlay.querySelector('.lb-count');
+  let idx = 0;
+  function show(i){
+    idx = (i + imgs.length) % imgs.length;
+    const img = imgs[idx];
+    bigImg.src = img.currentSrc || img.src;
+    bigImg.alt = img.alt || '';
+    const fc = img.closest('.figure') && img.closest('.figure').querySelector('figcaption');
+    cap.textContent = fc ? fc.textContent : (img.alt || '');
+    count.textContent = (idx + 1) + ' / ' + imgs.length;
+  }
+  function open(i){
+    show(i);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  const isOpen = () => overlay.classList.contains('open');
+  imgs.forEach((img, i) => img.addEventListener('click', () => open(i)));
+  overlay.addEventListener('click', close);
+  overlay.querySelector('.lb-prev').addEventListener('click', e => { e.stopPropagation(); show(idx - 1); });
+  overlay.querySelector('.lb-next').addEventListener('click', e => { e.stopPropagation(); show(idx + 1); });
+  overlay.querySelector('.lb-close').addEventListener('click', e => { e.stopPropagation(); close(); });
+  window.addEventListener('keydown', e => {
+    if(!isOpen()) return;
+    if(e.key === 'Escape') close();
+    else if(e.key === 'ArrowLeft') show(idx - 1);
+    else if(e.key === 'ArrowRight') show(idx + 1);
+  });
+  // Swipe left / right on touch screens
+  let sx = null, sy = null;
+  overlay.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  overlay.addEventListener('touchend', e => {
+    if(sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    sx = sy = null;
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      e.preventDefault();
+      show(dx < 0 ? idx + 1 : idx - 1);
+      overlay._swiped = true; setTimeout(() => overlay._swiped = false, 400);
+    }
+  });
+  // ignore the synthetic click that follows a swipe so it doesn't close the viewer
+  overlay.addEventListener('click', e => { if(overlay._swiped){ e.stopImmediatePropagation(); } }, true);
+})();
+</script>
+<script>
+// ===== Back-to-top button =====
+(function(){
+  const btn = document.getElementById('toTop');
+  if(!btn) return;
+  let ticking = false;
+  function update(){
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    btn.classList.toggle('show', y > 250);
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => { if(!ticking){ ticking = true; requestAnimationFrame(update); } }, { passive:true });
+  window.addEventListener('resize', update);
+  btn.addEventListener('click', () => {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top:0, behavior: reduce ? 'auto' : 'smooth' });
+    btn.blur();
+  });
+  update();
+})();
+</script><button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 15.5l6-6 6 6" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></body></html>
